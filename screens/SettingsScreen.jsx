@@ -1,17 +1,34 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../components/Navbar";
 import { globalStyles } from "../styles/globalStyles";
-import { useSelector } from "react-redux";
+import { firebaseAuth } from "../config/firebase.config";
+import { useSelector, useDispatch } from "react-redux";
+import { SET_USER_NULL } from "../context/actions/userActions";
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
+  const [isSignOutModalVisible, setSignOutModalVisible] = useState(false);
 
   const navigateToPage = (route) => {
-    navigation.navigate(route);
+    if (route === "SignOut") {
+      setSignOutModalVisible(true);
+    } else {
+      navigation.navigate(route);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await firebaseAuth.signOut().then(() => {
+      dispatch(SET_USER_NULL());
+      navigation.replace("Welcome");
+      //need to fix back button un-sign out
+    });
+    setSignOutModalVisible(false);
   };
 
   return (
@@ -31,6 +48,7 @@ const SettingsScreen = () => {
 
       {/* Body */}
       <View style={globalStyles.contentContainer}>
+        {/* Settings Items */}
         <TouchableOpacity
           style={ggg.settingsItem}
           onPress={() => navigateToPage("AccountManagement")}
@@ -136,6 +154,36 @@ const SettingsScreen = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Sign Out Confirmation Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isSignOutModalVisible}
+        onRequestClose={() => setSignOutModalVisible(false)}
+      >
+        <View style={ggg.modalContainer}>
+          <View style={ggg.modalContent}>
+            <Text style={ggg.modalText}>
+              Are you sure you want to sign out?
+            </Text>
+            <View style={ggg.modalButtons}>
+              <TouchableOpacity
+                style={ggg.modalButton}
+                onPress={() => setSignOutModalVisible(false)}
+              >
+                <Text style={ggg.modalButtonText}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={ggg.modalButton}
+                onPress={() => handleSignOut()}
+              >
+                <Text style={ggg.modalButtonText}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Footer & Navbar */}
       <View style={globalStyles.footer}>
         <NavBar />
@@ -149,12 +197,46 @@ const ggg = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
   settingsIcon: {
     marginRight: 16,
   },
   settingsText: {
     fontSize: 18,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: "row",
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: "#e24e59",
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
