@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  Image,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -9,6 +10,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import NavBar from "../components/Navbar";
+import MessageCard from "../components/MessageCard";
 import { globalStyles } from "../styles/globalStyles";
 import { useSelector } from "react-redux";
 
@@ -18,7 +21,7 @@ const ChatsListScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <View style={globalStyles.container}>
+    <View style={globalStyles.pageContainer}>
       <View style={globalStyles.header}>
         <View style={globalStyles.backButtonContainer}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -31,11 +34,11 @@ const ChatsListScreen = () => {
         </View>
       </View>
 
-      <ScrollView style={globalStyles.bodyContainer}>
-        <Text style={globalStyles.title}>testing</Text>
+      <ScrollView style={ggg.contentContainer}>
+        {/* When Chats Loading */}
         {isLoading ? (
           <>
-            <View style={ggg.subBodyContainer}>
+            <View style={ggg.pageBodyContainer}>
               <ActivityIndicator size={"large"} color={"#E24E59"} />
             </View>
           </>
@@ -45,32 +48,25 @@ const ChatsListScreen = () => {
           </>
         )}
       </ScrollView>
-    </View>
-  );
-};
 
-const MessageCard = () => {
-  return (
-    <View>
-      <Text>Hi</Text>
+      {/* Footer & Navbar */}
+      <View style={globalStyles.footer}>
+        <NavBar />
+      </View>
     </View>
   );
 };
 
 const ggg = StyleSheet.create({
-  subBodyContainer: {
+  contentContainer: {
+    width: "100%",
+    padding: 12,
+  },
+  pageBodyContainer: {
     width: "100%",
     display: "flex",
     justifyContent: "flex-start",
     alignItems: "center",
-  },
-  title: {
-    color: "#000",
-    fontSize: 24,
-    fontWeight: "bold",
-    lineHeight: 28,
-    marginLeft: 16,
-    marginTop: 4,
   },
 });
 

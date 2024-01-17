@@ -14,6 +14,7 @@ import {
   SplashScreen,
   ChatsListScreen,
   MyProfileScreen,
+  SettingsScreen,
 } from "./screens";
 
 import { Provider } from "react-redux";
@@ -39,6 +40,7 @@ const App = () => {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Chats" component={ChatsListScreen} />
           <Stack.Screen name="MyProfile" component={MyProfileScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
           <Stack.Screen name="Test" component={TestScreen} />
         </Stack.Navigator>
       </Provider>

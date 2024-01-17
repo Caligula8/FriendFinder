@@ -1,34 +1,31 @@
 import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
 
 const SuggestedProfile = () => {
+  const user = useSelector((state) => state.user.user);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.profileBox}>
-        <Text style={styles.bottomRightText}>Paul</Text>
-        <TouchableOpacity style={styles.circleBottomLeft}>
-          <FontAwesome name="user" size={32} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.circleBottomRight}>
-          <FontAwesome name="user" size={32} color="white" />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.profileBox}>
+      <Text style={styles.bottomRightText}>Paul</Text>
+      <TouchableOpacity style={styles.circleBottomLeft}>
+        <Feather name="x" size={32} color="white" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.circleBottomRight}>
+        <Ionicons name="chatbubbles-outline" size={32} color="white" />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "white",
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   profileBox: {
     backgroundColor: "#707070",
-    width: 300,
-    height: 500,
+    width: "85%",
+    height: "90%",
+    marginBottom: 16,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",

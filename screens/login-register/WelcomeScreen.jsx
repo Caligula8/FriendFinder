@@ -31,6 +31,7 @@ function WelcomeScreen(props) {
         </View>
 
         <View style={styles.buttonContainer}>
+          {/* Change to continue button component */}
           <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>

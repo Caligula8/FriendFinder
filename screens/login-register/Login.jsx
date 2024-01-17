@@ -3,7 +3,7 @@ import { useState } from "react";
 import { UserTextInput } from "../../components";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons"; //Arrow Back Icon
+import { Ionicons } from "@expo/vector-icons";
 import ContinueButton from "../../components/ContinueButton";
 //Firebase Imports
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -97,7 +97,7 @@ function Login(props) {
 
       {/*Continue Button*/}
       <View style={styles.buttonContainer}>
-        <ContinueButton onPress={handleLogin} />
+        <ContinueButton onPress={handleLogin} buttonText="Continue" />
       </View>
 
       {/*Forgot Password*/}
@@ -146,10 +146,9 @@ const styles = StyleSheet.create({
     marginTop: 9,
   },
   buttonContainer: {
+    width: "100%",
     position: "absolute",
     bottom: 60,
-    left: 0,
-    right: 0,
   },
   forgotPassword: {
     color: "#8D8D8D",

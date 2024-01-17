@@ -7,4 +7,5 @@ export { default as Register3 } from "./login-register/Register3";
 export { default as HomeScreen } from "./HomeScreen";
 export { default as ChatsListScreen } from "./ChatsListScreen";
 export { default as MyProfileScreen } from "./MyProfileScreen";
+export { default as SettingsScreen } from "./SettingsScreen";
 export { default as TestScreen } from "./TestScreen";

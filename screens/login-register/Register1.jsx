@@ -9,7 +9,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, setDoc } from "firebase/firestore";
 
-function Register1(props) {
+const Register1 = () => {
   const navigation = useNavigation();
 
   const [email, setEmail] = useState("");
@@ -98,7 +98,7 @@ function Register1(props) {
       {/*Continue Button*/}
       {/*onPress={handleContinue}*/}
       <View style={styles.buttonContainer}>
-        <ContinueButton onPress={handleSignUp} />
+        <ContinueButton onPress={handleSignUp} buttonText="Continue" />
       </View>
 
       {/*Redirect to login*/}
@@ -114,7 +114,7 @@ function Register1(props) {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -150,10 +150,9 @@ const styles = StyleSheet.create({
     marginTop: 9,
   },
   buttonContainer: {
+    width: "100%",
     position: "absolute",
     bottom: 60,
-    left: 0,
-    right: 0,
   },
   loginRedirectContainer: {
     width: "100%",

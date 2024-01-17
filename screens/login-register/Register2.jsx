@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import DoBInput from "../../components/DoBInput";
 import ContinueButton from "../../components/ContinueButton";
 
-function Register1(props) {
+const Register2 = () => {
   const navigation = useNavigation();
 
   const [email, setEmail] = useState("");
@@ -55,7 +55,7 @@ function Register1(props) {
 
       {/*Continue Button*/}
       <View style={styles.buttonContainer}>
-        <ContinueButton onPress={handleContinue} />
+        <ContinueButton onPress={handleContinue} buttonText="Continue" />
       </View>
 
       {/*Redirect to login*/}
@@ -71,7 +71,7 @@ function Register1(props) {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -113,10 +113,9 @@ const styles = StyleSheet.create({
     marginTop: 9,
   },
   buttonContainer: {
+    width: "100%",
     position: "absolute",
     bottom: 60,
-    left: 0,
-    right: 0,
   },
   loginRedirectContainer: {
     width: "100%",
@@ -137,4 +136,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Register1;
+export default Register2;

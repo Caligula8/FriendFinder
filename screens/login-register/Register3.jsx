@@ -63,7 +63,7 @@ const Register3 = () => {
 
       {/* Continue Button */}
       <View style={styles.buttonContainer}>
-        <ContinueButton onPress={handleContinue} />
+        <ContinueButton onPress={handleContinue} buttonText="Continue" />
       </View>
     </View>
   );
@@ -93,10 +93,9 @@ const styles = StyleSheet.create({
     marginBottom: 80,
   },
   buttonContainer: {
+    width: "100%",
     position: "absolute",
     bottom: 60,
-    left: 0,
-    right: 0,
   },
   title: {
     color: "#000",
