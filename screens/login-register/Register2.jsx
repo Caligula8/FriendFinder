@@ -14,26 +14,26 @@ import DoBInput from "../../components/DoBInput";
 import ContinueButton from "../../components/ContinueButton";
 
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 
 
 const Register2 = () => {
-  console.log("this is Register2");
+  // console.log("this is Register2");
   const navigation = useNavigation();
   
   const [name, setName] = useState("");
   const [DoB, setDob] = useState("");
 
-  const handleContinue = async () => {
+  const handleRegisterCont = async () => {
     try {
       console.log("testing testing. uid is ", firebaseAuth.currentUser.uid);
 
-      const userRef = firestoreDB.collection('users').doc(firebaseAuth.currentUser.uid);
       const data = {
         displayName: name,
         dateOfBirth: DoB
-      }
-      await userRef.update(data);
+      };
+      // const userRef = firestoreDB.collection('users').doc(firebaseAuth.currentUser.uid).update(data);
+      await updateDoc(doc(firestoreDB, "users", firebaseAuth.currentUser.uid), data);
 
       navigation.navigate("Register3");
     } catch (error) {
@@ -73,7 +73,7 @@ const Register2 = () => {
 
       {/*Continue Button*/}
       <View style={styles.buttonContainer}>
-        <ContinueButton onPress={handleContinue} buttonText="Continue" />
+        <ContinueButton onPress={handleRegisterCont} buttonText="Continue" />
       </View>
 
       {/*Redirect to login*/}

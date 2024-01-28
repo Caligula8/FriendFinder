@@ -29,11 +29,11 @@ const SplashScreen = () => {
               dispatch(SET_USER(docSnap.data()));
             }
           })
-          .then(() => {
+          /* .then(() => {
             setTimeout(() => {
               navigation.replace("Home");
             }, 2000);
-          });
+          }) */;
       } else {
         navigation.replace("Welcome");
       }
