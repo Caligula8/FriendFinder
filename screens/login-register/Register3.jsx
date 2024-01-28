@@ -14,11 +14,10 @@ import ContinueButton from "../../components/ContinueButton";
 
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, setDoc } from "firebase/firestore";
-import HobbySelect from "./HobbySelect";
+import HobbySelect from "../../components/HobbySelect";
 
-const Register3 = () => {
+const Register3 = ({ selection }) => {
   const navigation = useNavigation();
-
   const hobbiesData = [
     {
       title: "Music",
@@ -38,6 +37,8 @@ const Register3 = () => {
     },
   ];
   const [myHobbies, setMyHobbies] = useState([]);
+
+  // console.log(myHobbies.toString);
 
   const handleContinue = () => {
 

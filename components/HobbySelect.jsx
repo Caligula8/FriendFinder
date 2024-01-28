@@ -3,9 +3,22 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 const HobbySelect = ({ HobbyName }) => {
   const [pressed, setPressed] = useState(false);
+  const [selected, setSelected] = useState([]);
 
   const handlePress = () => {
     setPressed(!pressed);
+
+    if (pressed){
+      setSelected(
+        [
+          ...selected,
+          HobbyName
+        ]
+      );
+    }
+    else {
+      setSelected(selected.filter(e => e !== HobbyName));
+    }
   };
 
   return (
@@ -19,7 +32,7 @@ const HobbySelect = ({ HobbyName }) => {
       ]}
       onPress={handlePress}
     >
-      <Text style={[styles.buttonText, { color: pressed ? "#000" : "#fff" }]}>
+      <Text style={[styles.buttonText, { color: pressed ? "#fff" : "#000"  }]}>
         {HobbyName}
       </Text>
     </TouchableOpacity>
