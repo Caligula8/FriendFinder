@@ -13,14 +13,32 @@ import { Ionicons } from "@expo/vector-icons";
 import DoBInput from "../../components/DoBInput";
 import ContinueButton from "../../components/ContinueButton";
 
-const Register2 = () => {
-  const navigation = useNavigation();
+import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
+import { doc, setDoc } from "firebase/firestore";
 
-  const [email, setEmail] = useState("");
+
+const Register2 = () => {
+  console.log("this is Register2");
+  const navigation = useNavigation();
+  
+  const [name, setName] = useState("");
   const [DoB, setDob] = useState("");
 
-  const handleContinue = () => {
-    navigation.navigate("Register3");
+  const handleContinue = async () => {
+    try {
+      console.log("testing testing. uid is ", firebaseAuth.currentUser.uid);
+
+      const userRef = firestoreDB.collection('users').doc(firebaseAuth.currentUser.uid);
+      const data = {
+        displayName: name,
+        dateOfBirth: DoB
+      }
+      await userRef.update(data);
+
+      navigation.navigate("Register3");
+    } catch (error) {
+      console.error("Error updating user document (Register2): ", error);
+    }
   };
 
   const handleLoginRedirect = () => {
@@ -46,7 +64,7 @@ const Register2 = () => {
       <UserTextInput
         placeholder="Enter your first name"
         isPass={false}
-        setStatValue={setEmail}
+        setStatValue={setName}
       />
 
       {/*Date of Birth Input*/}

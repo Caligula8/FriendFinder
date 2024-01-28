@@ -11,6 +11,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { Accordion } from "../../components";
 import ContinueButton from "../../components/ContinueButton";
 
+import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
+import { doc, setDoc } from "firebase/firestore";
+
 const Register3 = () => {
   const navigation = useNavigation();
 
