@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -13,16 +14,10 @@ import ContinueButton from "../../components/ContinueButton";
 
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, setDoc } from "firebase/firestore";
+import HobbySelect from "./HobbySelect";
 
 const Register3 = () => {
   const navigation = useNavigation();
-
-  const handleContinue = () => {
-    navigation.navigate("Home");
-  };
-  const handleBackButton = () => {
-    navigation.navigate("Register2");
-  };
 
   const hobbiesData = [
     {
@@ -42,6 +37,15 @@ const Register3 = () => {
       hobbies: ["Max Width Test", "Max Width Test", "Max Width Test"],
     },
   ];
+  const [myHobbies, setMyHobbies] = useState([]);
+
+  const handleContinue = () => {
+
+    navigation.navigate("Home");
+  };
+  const handleBackButton = () => {
+    navigation.navigate("Register2");
+  };
 
   return (
     <View style={styles.container}>

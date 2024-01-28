@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 const HobbySelect = ({ HobbyName }) => {
-  const [pressed, setPressed] = useState(true);
+  const [pressed, setPressed] = useState(false);
 
   const handlePress = () => {
     setPressed(!pressed);
@@ -13,8 +13,8 @@ const HobbySelect = ({ HobbyName }) => {
       style={[
         styles.button,
         {
-          borderColor: pressed ? "#FDDBDD" : "#fff",
-          backgroundColor: pressed ? "#fff" : "#e24e59",
+          borderColor: pressed ? "#fff" : "#FDDBDD",
+          backgroundColor: pressed ? "#e24e59" : "#fff",
         },
       ]}
       onPress={handlePress}
