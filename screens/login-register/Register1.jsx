@@ -9,20 +9,20 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, setDoc } from "firebase/firestore";
 
+
 const Register1 = () => {
   const navigation = useNavigation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [getEmailValidationStatus, setGetEmailValidationStatus] =
-    useState(false);
+  const [getEmailValidationStatus, setGetEmailValidationStatus] = useState(false);
 
-  const handleContinue = () => {
+  /* const handleContinue = () => {
     navigation.navigate("Register2");
-  };
+  }; */
 
-  //Temp - implement to register2&3
+  //Temp - implement to register3 when finished testing
   const handleSignUp = async () => {
     if (getEmailValidationStatus && email !== "") {
       try {
@@ -41,10 +41,11 @@ const Register1 = () => {
 
         await setDoc(doc(firestoreDB, "users", userCred.user.uid), data);
 
+        //Consider removing try/catch when finished testing
         console.log("User document created successfully:", userCred.user.uid);
         navigation.navigate("Login");
       } catch (error) {
-        console.error("Error creating user document:", error);
+        console.error("Error creating user document: ", error);
       }
     }
   };
@@ -93,7 +94,7 @@ const Register1 = () => {
       </View>
 
       {/*Continue Button*/}
-      {/*onPress={handleContinue}*/}
+      {/*onPress={handleSignUp}*/}
       <View style={styles.buttonContainer}>
         <ContinueButton onPress={handleSignUp} buttonText="Continue" />
       </View>

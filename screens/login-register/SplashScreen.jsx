@@ -12,9 +12,11 @@ import { useDispatch } from "react-redux";
 const SplashScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  // console.log("Splash");
 
   useLayoutEffect(() => {
     checkLoggedUser();
+    // console.log("useLayoutEffect");
   }, []);
 
   const checkLoggedUser = async () => {
