@@ -22,7 +22,7 @@ const NavBar = () => {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => handleButtonPress("Test")}
+        onPress={() => handleButtonPress("Categories")}
       >
         <AntDesign name="profile" size={28} color="black" />
       </TouchableOpacity>

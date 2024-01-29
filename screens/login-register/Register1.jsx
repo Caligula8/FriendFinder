@@ -22,7 +22,7 @@ const Register1 = () => {
     navigation.navigate("Register2");
   };
 
-  //Temp - implement to register3 when finished testing
+  //Temp - implement to register2&3
   const handleSignUp = async () => {
     if (getEmailValidationStatus && email !== "") {
       try {
@@ -41,7 +41,6 @@ const Register1 = () => {
 
         await setDoc(doc(firestoreDB, "users", userCred.user.uid), data);
 
-        //Consider removing try/catch when finished testing
         console.log("User document created successfully:", userCred.user.uid);
         navigation.navigate("Login");
       } catch (error) {
@@ -56,8 +55,6 @@ const Register1 = () => {
 
   return (
     <View style={styles.container}>
-      {/*className="w-full h-full bg-white pt-32 flex items-center justify-center"> */}
-
       {/* Header */}
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Sign up</Text>

@@ -14,11 +14,10 @@ import {
   doc,
   getDocs,
   setDoc,
+  addDoc,
   serverTimestamp,
-  updateDoc,
 } from "firebase/firestore";
-import { firestoreDB, firebaseAuth } from "../config/firebase.config";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { firestoreDB } from "../config/firebase.config";
 import { useSelector } from "react-redux";
 
 const TestScreen = () => {
@@ -38,22 +37,64 @@ const TestScreen = () => {
     fetchUserIDs();
   }, []);
 
+  useEffect(() => {
+    const fetchUserEmails = async () => {
+      const usersSnapshot = await getDocs(collection(firestoreDB, "users"));
+      const userDataArray = usersSnapshot.docs.map((userDoc) => userDoc.data());
+      setUserEmails(userDataArray); // Set user data array
+    };
+
+    fetchUserEmails();
+  }, []);
+
   const createNewChat = async () => {
+    if (selectedUser && user) {
+      console.log("user.email:", user.email);
+      console.log("selectedUser:", selectedUser);
+
+      const chatMembers = {
+        [user.email]: true,
+        [selectedUser]: true,
+      };
+
+      // add a new document to the chats collection
+      const chatDocRef = await addDoc(collection(firestoreDB, "chats"), {
+        members: chatMembers,
+        createdAt: serverTimestamp(),
+      });
+
+      // Add chat reference to both users
+      const userChatRef = doc(firestoreDB, "users", user.email);
+      const selectedUserChatRef = doc(firestoreDB, "users", selectedUser);
+
+      await updateDoc(userChatRef, {
+        chats: {
+          [selectedUser]: chatDocRef.id,
+        },
+      });
+
+      await updateDoc(selectedUserChatRef, {
+        chats: {
+          [user.email]: chatDocRef.id,
+        },
+      });
+
+      navigation.replace("Chats");
+    }
+  };
+
+  const createNewChat2 = async () => {
     if (selectedUser && user) {
       console.log("user.id:", user._id);
       console.log("selectedUser:", selectedUser);
-      console.log("selectedUserEmail:", selectedUser);
 
       const chatMembers = {
         [user._id]: true,
         [selectedUser]: true,
       };
 
-      // Create a unique chat ID
-      const chatID = `${user._id}_${selectedUser}`;
-
-      // Add a new document to the chats collection
-      const chatDocRef = await setDoc(doc(firestoreDB, "chats", chatID), {
+      // add a new document to the chats collection
+      const chatDocRef = await addDoc(collection(firestoreDB, "chats"), {
         members: chatMembers,
         createdAt: serverTimestamp(),
       });
@@ -64,13 +105,13 @@ const TestScreen = () => {
 
       await updateDoc(userChatRef, {
         chats: {
-          [selectedUser]: chatID,
+          [selectedUser]: chatDocRef.id,
         },
       });
 
       await updateDoc(selectedUserChatRef, {
         chats: {
-          [user._id]: chatID,
+          [user._id]: chatDocRef.id,
         },
       });
 

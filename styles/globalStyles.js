@@ -8,12 +8,14 @@ export const globalStyles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "flex-start",
+    justifyContent: "space-between",
     height: 110,
   },
   backButtonContainer: {
-    marginLeft: 16,
+    //marginLeft: 16,
     position: "absolute",
     top: 35,
+    left: 16,
   },
   titleContainer: {
     flexDirection: "column",
@@ -30,6 +32,16 @@ export const globalStyles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     color: "#8D8D8D",
+  },
+  headerIconContainerRight: {
+    position: "absolute",
+    top: 75,
+    right: 28,
+  },
+  headerIconContainerLeft: {
+    position: "absolute",
+    top: 75,
+    right: 82,
   },
   contentContainer: {
     flex: 1,

@@ -15,6 +15,10 @@ import {
   ChatsListScreen,
   MyProfileScreen,
   SettingsScreen,
+  BrowseCategoriesScreen,
+  BrowsePostsScreen,
+  ExpandedPostScreen,
+  CreatePostScreen,
 } from "./screens";
 
 import { Provider } from "react-redux";
@@ -41,6 +45,10 @@ const App = () => {
           <Stack.Screen name="Chats" component={ChatsListScreen} />
           <Stack.Screen name="MyProfile" component={MyProfileScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="Categories" component={BrowseCategoriesScreen} />
+          <Stack.Screen name="Posts" component={BrowsePostsScreen} />
+          <Stack.Screen name="FullScreenPost" component={ExpandedPostScreen} />
+          <Stack.Screen name="CreatePost" component={CreatePostScreen} />
           <Stack.Screen name="Test" component={TestScreen} />
         </Stack.Navigator>
       </Provider>

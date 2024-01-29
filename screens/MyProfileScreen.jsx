@@ -43,7 +43,7 @@ const MyProfileScreen = () => {
           <Text style={globalStyles.title}>FriendFinder</Text>
         </View>
         <TouchableOpacity
-          style={ggg.cogContainer}
+          style={globalStyles.headerIconContainerRight}
           onPress={handleSettingsRedirect}
         >
           <Ionicons name="settings-outline" size={32} color="black" />
@@ -115,12 +115,6 @@ const MyProfileScreen = () => {
 };
 
 const ggg = StyleSheet.create({
-  cogContainer: {
-    flexDirection: "column",
-    position: "absolute",
-    top: 75,
-    right: 28,
-  },
   profileImageContainer: {
     alignItems: "center",
     paddingTop: 18,

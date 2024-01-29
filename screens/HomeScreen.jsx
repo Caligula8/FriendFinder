@@ -6,7 +6,7 @@ import { SuggestedProfile } from "../components";
 import { useSelector } from "react-redux";
 
 const HomeScreen = () => {
-  const user = useSelector((state) => state.user.user);
+  // const user = useSelector((state) => state.user.user);
 
   return (
     <View style={globalStyles.pageContainer}>

@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -14,11 +13,33 @@ import NavBar from "../components/Navbar";
 import MessageCard from "../components/MessageCard";
 import { globalStyles } from "../styles/globalStyles";
 import { useSelector } from "react-redux";
+import {
+  QuerySnapshot,
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { firestoreDB } from "../config/firebase.config";
 
 const ChatsListScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
   const [isLoading, setIsLoading] = useState(false);
+  const [chats, setChats] = useState(null);
+
+  useLayoutEffect(() => {
+    const chatQuery = query(
+      collection(firestoreDB, "chats"),
+      orderBy("_id", "desc") //needs to sort by most recent message
+    );
+
+    const unsubscribe = onSnapshot(chatQuery, (querySnapshot) => {
+      const chatRooms = querySnapshot.docs.map((doc) => doc.data());
+      setChats(chatRooms);
+      setIsLoading(false);
+    });
+  }, []);
 
   return (
     <View style={globalStyles.pageContainer}>
@@ -45,6 +66,17 @@ const ChatsListScreen = () => {
         ) : (
           <>
             <MessageCard />
+            <MessageCard />
+            <MessageCard />
+            {chats && chats?.length > 0 ? (
+              <>
+                {chats.map((room) => (
+                  <MessageCard key={room._id} room={room} />
+                ))}
+              </>
+            ) : (
+              <></>
+            )}
           </>
         )}
       </ScrollView>
