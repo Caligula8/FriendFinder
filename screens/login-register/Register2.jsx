@@ -16,11 +16,10 @@ import ContinueButton from "../../components/ContinueButton";
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, setDoc } from "firebase/firestore";
 
-
 const Register2 = () => {
   console.log("this is Register2");
   const navigation = useNavigation();
-  
+
   const [name, setName] = useState("");
   const [DoB, setDob] = useState("");
 
@@ -28,13 +27,14 @@ const Register2 = () => {
     try {
       console.log("testing testing. uid is ", firebaseAuth.currentUser.uid);
 
-      const userRef = firestoreDB.collection('users').doc(firebaseAuth.currentUser.uid);
+      const userRef = firestoreDB
+        .collection("users")
+        .doc(firebaseAuth.currentUser.uid);
       const data = {
         displayName: name,
-        dateOfBirth: DoB
-      }
+        dateOfBirth: DoB,
+      };
       await userRef.update(data);
-
       navigation.navigate("Register3");
     } catch (error) {
       console.error("Error updating user document (Register2): ", error);

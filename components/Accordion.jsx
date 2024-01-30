@@ -1,30 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import HobbySelect from "./HobbySelect";
 import { FontAwesome } from "@expo/vector-icons";
 
-const Accordion = ({ title, hobbies }) => {
-  const [expanded, setExpanded] = useState(false);
+const MemoizedHobbySelect = React.memo(HobbySelect);
 
-  const toggleAccordion = () => {
-    setExpanded(!expanded);
-  };
-
+const Accordion = ({
+  title,
+  hobbies,
+  isOpen,
+  onPress,
+  selectedHobbies,
+  onHobbySelect,
+}) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.header} onPress={toggleAccordion}>
+      <TouchableOpacity style={styles.header} onPress={onPress}>
         <Text style={styles.title}>{title}</Text>
         {/*Chevron Icon*/}
         <FontAwesome
-          name={expanded ? "chevron-up" : "chevron-down"}
+          name={isOpen ? "chevron-up" : "chevron-down"}
           size={24}
           color="black"
         />
       </TouchableOpacity>
-      {expanded && (
+      {isOpen && (
         <View style={styles.buttonList}>
           {hobbies.map((hobby, index) => (
-            <HobbySelect key={index} HobbyName={hobby} />
+            <MemoizedHobbySelect
+              key={index}
+              HobbyName={hobby}
+              isSelected={selectedHobbies.includes(hobby)}
+              onSelect={(isSelected) => onHobbySelect(hobby, isSelected)}
+            />
           ))}
         </View>
       )}
@@ -37,8 +45,6 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
-    borderWidth: 1,
     borderColor: "#ccc",
     overflow: "hidden",
     padding: 10,

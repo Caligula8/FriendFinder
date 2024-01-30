@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,65 +8,102 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { Accordion } from "../../components";
+import Accordion from "../../components/Accordion";
 import ContinueButton from "../../components/ContinueButton";
+import ListOfHobbies from "../../components/ListOfHobbies";
 
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, setDoc } from "firebase/firestore";
 
 const Register3 = () => {
   const navigation = useNavigation();
+  const [openAccordionIndex, setOpenAccordionIndex] = useState(null);
+  const [selectedHobbies, setSelectedHobbies] = useState([]);
+  const isSelectionValid =
+    selectedHobbies.length >= 5 && selectedHobbies.length <= 20;
+
+  const handleAccordionPress = (index) => {
+    setOpenAccordionIndex((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  const handleHobbySelect = (hobby, isSelected) => {
+    setSelectedHobbies((prevHobbies) => {
+      if (isSelected) {
+        return [...prevHobbies, hobby];
+      } else {
+        return prevHobbies.filter((h) => h !== hobby);
+      }
+    });
+  };
 
   const handleContinue = () => {
     navigation.navigate("Home");
   };
-  const handleBackButton = () => {
-    navigation.navigate("Register2");
-  };
 
-  const hobbiesData = [
-    {
-      title: "Music",
-      hobbies: ["Guitar", "Piano", "Drums"],
-    },
-    {
-      title: "Sports",
-      hobbies: ["Soccer", "Basketball", "Tennis"],
-    },
-    {
-      title: "Technology & Gaming",
-      hobbies: ["TV Shows", "Games", "Reading"],
-    },
-    {
-      title: "Nature & Science",
-      hobbies: ["Max Width Test", "Max Width Test", "Max Width Test"],
-    },
-  ];
+  // This below might save you some time, ctrl and / to comment/uncomment
+
+  // const handleContinue = async () => {
+  //   try {
+  //     const userUID = firebaseAuth.currentUser.uid;
+  //     const userRef = firestoreDB.collection("users").doc(userUID);
+
+  //     // Assuming 'hobbies' is the field in the user's document where you want to store the selected hobbies
+  //     const data = {
+  //       hobbies: selectedHobbies,
+  //     };
+
+  //     await userRef.update(data);
+  //     navigation.replace("Home");
+  //   } catch (error) {
+  //     console.error("Error updating user document (Register3): ", error);
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
-      <View style={styles.backButtonContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate("Register2")}>
-          <Ionicons name="arrow-back-outline" size={32} color="black" />
-        </TouchableOpacity>
-      </View>
-      {/* Header */}
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>My Interests</Text>
-        <Text style={styles.stepText}>Step 3/3</Text>
-      </View>
-      {/* Accordions */}
-      <ScrollView style={styles.accordionContainer}>
-        {/* Fill & List Accordions */}
-        {hobbiesData.map((data, index) => (
-          <Accordion key={index} title={data.title} hobbies={data.hobbies} />
-        ))}
+      <ScrollView>
+        {/* Back Button */}
+        <View style={styles.backButtonContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate("Register2")}>
+            <Ionicons name="arrow-back-outline" size={32} color="black" />
+          </TouchableOpacity>
+        </View>
+        {/* Header */}
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>I Am Interested In...</Text>
+          <Text style={styles.stepText}>Step 3/3</Text>
+        </View>
+        {/* Accordions */}
+        <View style={styles.accordionContainer}>
+          {ListOfHobbies.map((data, index) => (
+            <Accordion
+              key={index}
+              title={data.title}
+              hobbies={data.hobbies}
+              isOpen={index === openAccordionIndex}
+              onPress={() => handleAccordionPress(index)}
+              selectedHobbies={selectedHobbies}
+              onHobbySelect={(hobby, isSelected) =>
+                handleHobbySelect(hobby, isSelected)
+              }
+            />
+          ))}
+        </View>
       </ScrollView>
 
-      {/* Continue Button */}
-      <View style={styles.buttonContainer}>
-        <ContinueButton onPress={handleContinue} buttonText="Continue" />
+      {/* Footer & Continue Button */}
+      <View style={styles.footer}>
+        <View style={styles.buttonContainer}>
+          <ContinueButton onPress={handleContinue} buttonText="Continue" />
+        </View>
+        {/* Selection Counter and Message */}
+        <View style={styles.selectionInfo}>
+          <Text style={{ color: "#8D8D8D" }}>
+            {isSelectionValid
+              ? `Selected ${selectedHobbies.length} out of 20`
+              : "Please select between 5 and 20 hobbies"}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -95,11 +132,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     marginBottom: 80,
   },
-  buttonContainer: {
-    width: "100%",
-    position: "absolute",
-    bottom: 60,
-  },
   title: {
     color: "#000",
     fontSize: 24,
@@ -112,6 +144,26 @@ const styles = StyleSheet.create({
     color: "#e24e59",
     fontSize: 13,
     marginRight: 16,
+  },
+  footer: {
+    width: "100%",
+    position: "absolute",
+    bottom: 0,
+    height: 108,
+    backgroundColor: "#fff",
+  },
+  buttonContainer: {
+    width: "100%",
+    position: "absolute",
+    bottom: 60,
+  },
+  selectionInfo: {
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    bottom: 24,
+    left: 0,
+    right: 0,
   },
 });
 

@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { memo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-const HobbySelect = ({ HobbyName }) => {
-  const [pressed, setPressed] = useState(true);
-
+const HobbySelect = ({ HobbyName, onSelect, isSelected }) => {
   const handlePress = () => {
-    setPressed(!pressed);
+    onSelect(!isSelected);
   };
 
   return (
@@ -13,13 +11,15 @@ const HobbySelect = ({ HobbyName }) => {
       style={[
         styles.button,
         {
-          borderColor: pressed ? "#FDDBDD" : "#fff",
-          backgroundColor: pressed ? "#fff" : "#e24e59",
+          borderColor: isSelected ? "#fff" : "#FDDBDD",
+          backgroundColor: isSelected ? "#e24e59" : "#fff",
         },
       ]}
       onPress={handlePress}
     >
-      <Text style={[styles.buttonText, { color: pressed ? "#000" : "#fff" }]}>
+      <Text
+        style={[styles.buttonText, { color: isSelected ? "#fff" : "#000" }]}
+      >
         {HobbyName}
       </Text>
     </TouchableOpacity>
@@ -29,13 +29,13 @@ const HobbySelect = ({ HobbyName }) => {
 const styles = StyleSheet.create({
   button: {
     flex: 0,
-    maxWidth: 120,
+    maxWidth: 150,
     minHeight: 46,
     justifyContent: "center",
     alignItems: "center",
     marginVertical: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     borderRadius: 16,
     borderWidth: 2.5,
     borderColor: "#fff",
