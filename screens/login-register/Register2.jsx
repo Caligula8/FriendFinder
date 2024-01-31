@@ -14,10 +14,10 @@ import DoBInput from "../../components/DoBInput";
 import ContinueButton from "../../components/ContinueButton";
 
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 
 const Register2 = () => {
-  console.log("this is Register2");
+  // console.log("this is Register2");
   const navigation = useNavigation();
 
   const [name, setName] = useState("");
@@ -25,16 +25,14 @@ const Register2 = () => {
 
   const handleContinue = async () => {
     try {
-      console.log("testing testing. uid is ", firebaseAuth.currentUser.uid);
+      //console.log("testing testing. uid is ", firebaseAuth.currentUser.uid);
 
-      const userRef = firestoreDB
-        .collection("users")
-        .doc(firebaseAuth.currentUser.uid);
+      const userRef = doc(firestoreDB, "users", firebaseAuth.currentUser.uid);
       const data = {
         displayName: name,
         dateOfBirth: DoB,
       };
-      await userRef.update(data);
+      await updateDoc(userRef, data);
       navigation.navigate("Register3");
     } catch (error) {
       console.error("Error updating user document (Register2): ", error);

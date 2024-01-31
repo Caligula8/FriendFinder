@@ -14,6 +14,10 @@ import ContinueButton from "../components/ContinueButton";
 import { globalStyles } from "../styles/globalStyles";
 import { useSelector } from "react-redux";
 
+// import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { firebaseAuth, firestoreDB } from "../config/firebase.config";
+import { doc, addDoc, arrayUnion, Timestamp, collection, updateDoc } from "firebase/firestore";
+
 const CreatePostScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
@@ -28,7 +32,26 @@ const CreatePostScreen = () => {
     //navigation.navigate("Register3");
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
+
+    const userID = firebaseAuth.currentUser.uid;
+    const userRef = doc(firestoreDB, "users", userID);
+
+    const postRef = await addDoc(collection(firestoreDB, "posts"), {
+      content: postBody,
+      title: postTitle,
+      timestamp: Timestamp.now(),
+      user: userID
+    });
+
+    // add code to update in posts field in the relevant docs in collection "hobbies"
+    // 
+      
+    await updateDoc(userRef, {
+      posts: arrayUnion(postRef.id)
+    });
+
+
     //navigation.navigate("Register3");
   };
   return (

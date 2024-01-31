@@ -18,8 +18,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { firestoreDB, firebaseAuth } from "../config/firebase.config";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { useSelector } from "react-redux";
+/*import { useAuthState } from "react-firebase-hooks/auth";
+import { useSelector } from "react-redux";*/
 
 const TestScreen = () => {
   const navigation = useNavigation();
