@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -14,8 +15,9 @@ import ListOfHobbies from "../../components/ListOfHobbies";
 
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, setDoc } from "firebase/firestore";
+import HobbySelect from "../../components/HobbySelect";
 
-const Register3 = () => {
+const Register3 = ({ selection }) => {
   const navigation = useNavigation();
   const [openAccordionIndex, setOpenAccordionIndex] = useState(null);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -58,6 +60,7 @@ const Register3 = () => {
   //     console.error("Error updating user document (Register3): ", error);
   //   }
   // };
+
 
   return (
     <View style={styles.container}>

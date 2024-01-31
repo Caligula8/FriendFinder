@@ -33,7 +33,7 @@ const SplashScreen = () => {
             setTimeout(() => {
               navigation.replace("Home");
             }, 2000);
-          });*/
+          })*/;
       } else {
         navigation.replace("Welcome");
       }
