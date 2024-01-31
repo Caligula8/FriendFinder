@@ -9,7 +9,7 @@ const SuggestedProfile = () => {
 
   return (
     <View style={styles.profileBox}>
-      <Text style={styles.bottomRightText}>Paul</Text>
+      <Text style={styles.bottomRightText}>{user.displayName}</Text>
       <TouchableOpacity style={styles.circleBottomLeft}>
         <Feather name="x" size={32} color="white" />
       </TouchableOpacity>

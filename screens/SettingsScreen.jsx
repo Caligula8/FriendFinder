@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../components/Navbar";
 import { globalStyles } from "../styles/globalStyles";
@@ -92,12 +93,7 @@ const SettingsScreen = () => {
           style={ggg.settingsItem}
           onPress={() => navigateToPage("BlockedList")}
         >
-          <Ionicons
-            name="ios-close-circle-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
+          <MaterialIcons name="block" size={24} color="black" />
           <Text style={ggg.settingsText}>Manage Blocked List</Text>
         </TouchableOpacity>
 

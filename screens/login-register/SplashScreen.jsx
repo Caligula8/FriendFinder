@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -7,38 +7,43 @@ import Diversity2Icon from "../../assets/icons/Diversity2Icon";
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, getDoc } from "firebase/firestore";
 import { SET_USER } from "../../context/actions/userActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const SplashScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  // console.log("Splash");
+  const registrationComplete = useSelector(
+    (state) => state.user.registrationComplete
+  );
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
-  useLayoutEffect(() => {
-    checkLoggedUser();
-    // console.log("useLayoutEffect");
-  }, []);
-
-  const checkLoggedUser = async () => {
-    firebaseAuth.onAuthStateChanged((userCred) => {
+  useEffect(() => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged((userCred) => {
       if (userCred?.uid) {
-        getDoc(doc(firestoreDB, "users", userCred?.uid))
-          .then((docSnap) => {
-            if (docSnap.exists()) {
-              console.log("User Data:", docSnap.data());
-              dispatch(SET_USER(docSnap.data()));
-            }
-          })
-          /*.then(() => {
-            setTimeout(() => {
-              navigation.replace("Home");
-            }, 2000);
-          })*/;
+        getDoc(doc(firestoreDB, "users", userCred?.uid)).then((docSnap) => {
+          if (docSnap.exists()) {
+            console.log("User Data:", docSnap.data());
+            dispatch(SET_USER(docSnap.data()));
+            setInitialCheckDone(true);
+          }
+        });
       } else {
-        navigation.replace("Welcome");
+        setInitialCheckDone(true);
       }
     });
-  };
+
+    return () => unsubscribe(); // Cleanup the listener on component unmount
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (initialCheckDone && registrationComplete) {
+      setTimeout(() => {
+        navigation.replace("Home");
+      }, 2000);
+    } else if (initialCheckDone) {
+      navigation.replace("Welcome");
+    }
+  }, [initialCheckDone, registrationComplete, navigation]);
 
   return (
     <LinearGradient

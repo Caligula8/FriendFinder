@@ -16,9 +16,7 @@ import ContinueButton from "../../components/ContinueButton";
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, updateDoc } from "firebase/firestore";
 
-
 const Register2 = () => {
-  // console.log("this is Register2");
   const navigation = useNavigation();
 
   const [name, setName] = useState("");
@@ -26,8 +24,6 @@ const Register2 = () => {
 
   const handleRegisterCont = async () => {
     try {
-      //console.log("testing testing. uid is ", firebaseAuth.currentUser.uid);
-
       const userRef = doc(firestoreDB, "users", firebaseAuth.currentUser.uid);
       const data = {
         displayName: name,

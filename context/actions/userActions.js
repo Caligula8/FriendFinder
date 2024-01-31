@@ -10,3 +10,9 @@ export const SET_USER_NULL = () => {
     type: "SET_USER_NULL",
   };
 };
+
+export const SET_REGISTRATION_COMPLETE = () => {
+  return {
+    type: "SET_REGISTRATION_COMPLETE",
+  };
+};

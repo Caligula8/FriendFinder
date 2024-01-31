@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   View,
@@ -14,10 +13,9 @@ import ContinueButton from "../../components/ContinueButton";
 import ListOfHobbies from "../../components/ListOfHobbies";
 
 import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
-import { doc, setDoc } from "firebase/firestore";
-import HobbySelect from "../../components/HobbySelect";
+import { doc, updateDoc } from "firebase/firestore";
 
-const Register3 = ({ selection }) => {
+const Register3 = () => {
   const navigation = useNavigation();
   const [openAccordionIndex, setOpenAccordionIndex] = useState(null);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -38,29 +36,21 @@ const Register3 = ({ selection }) => {
     });
   };
 
-  const handleContinue = () => {
-    navigation.navigate("Home");
+  const handleContinue = async () => {
+    try {
+      const userUID = firebaseAuth.currentUser.uid;
+      const userRef = doc(firestoreDB, "users", userUID);
+
+      const data = {
+        hobbies: selectedHobbies,
+      };
+
+      await updateDoc(userRef, data);
+      navigation.replace("Home");
+    } catch (error) {
+      console.error("Error updating user document (Register3): ", error);
+    }
   };
-
-  // This below might save you some time, ctrl and / to comment/uncomment
-
-  // const handleContinue = async () => {
-  //   try {
-  //     const userUID = firebaseAuth.currentUser.uid;
-  //     const userRef = firestoreDB.collection("users").doc(userUID);
-
-  //     // Assuming 'hobbies' is the field in the user's document where you want to store the selected hobbies
-  //     const data = {
-  //       hobbies: selectedHobbies,
-  //     };
-
-  //     await userRef.update(data);
-  //     navigation.replace("Home");
-  //   } catch (error) {
-  //     console.error("Error updating user document (Register3): ", error);
-  //   }
-  // };
-
 
   return (
     <View style={styles.container}>

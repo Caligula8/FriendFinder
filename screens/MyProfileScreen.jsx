@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 
 const MyProfileScreen = () => {
   const navigation = useNavigation();
-  const user = useSelector((state) => state.user.user);
+  const user = useSelector((state) => state.user);
   const [aboutMeText, setAboutMeText] = useState("");
 
   const handleSettingsRedirect = () => {
