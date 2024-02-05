@@ -17,14 +17,29 @@ import { useSelector } from "react-redux";
 // import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { firebaseAuth, firestoreDB } from "../config/firebase.config";
 import { doc, addDoc, arrayUnion, Timestamp, collection, updateDoc } from "firebase/firestore";
+import { firebaseStorage } from "../config/firebase.config";
+import { ref } from "firebase/storage";
+
 
 const CreatePostScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
   const [postTitle, setPostTitle] = useState("");
   const [postBody, setPostBody] = useState("");
+  
+  const time = Timestamp.now().getSeconds();
+  const userID = firebaseAuth.currentUser.uid;
+  let fileCounter = 0;
+  const storageRefArr = [];
+  // const storageRef = ref(firebaseStorage);
 
   const handleAttachImages = () => {
+    // make file path
+    const path = userID + "/" + time + "_" + fileCounter;
+    fileCounter = fileCounter + 1;
+    // make storage reference
+    const storageRef = ref(firebaseStorage, path);
+    // storageRefArr.push({ file: ...uploadedFile, ref: ...storageRef });
     //navigation.navigate("Register3");
   };
 
@@ -34,7 +49,7 @@ const CreatePostScreen = () => {
 
   const handlePost = async () => {
 
-    const userID = firebaseAuth.currentUser.uid;
+    
     const userRef = doc(firestoreDB, "users", userID);
 
     const postRef = await addDoc(collection(firestoreDB, "posts"), {

@@ -33,7 +33,6 @@ const app = getApp();
 
 const firebaseAuth = getAuth(app);
 const firestoreDB = getFirestore(app);
-
-const firebaseStorage = getStorage();
+const firebaseStorage = getStorage(app);
 
 export { app, firebaseAuth, firestoreDB, firebaseStorage };
