@@ -12,7 +12,6 @@ export const globalStyles = StyleSheet.create({
     height: 110,
   },
   backButtonContainer: {
-    //marginLeft: 16,
     position: "absolute",
     top: 35,
     left: 16,

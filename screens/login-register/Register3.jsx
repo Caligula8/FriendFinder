@@ -21,6 +21,7 @@ const Register3 = () => {
   const [selectedHobbies, setSelectedHobbies] = useState([]);
   const isSelectionValid =
     selectedHobbies.length >= 5 && selectedHobbies.length <= 20;
+  const [isValidColor, setIsValidColor] = useState("#8D8D8D");
 
   const handleAccordionPress = (index) => {
     setOpenAccordionIndex((prevIndex) => (prevIndex === index ? null : index));
@@ -37,18 +38,26 @@ const Register3 = () => {
   };
 
   const handleContinue = async () => {
-    try {
-      const userUID = firebaseAuth.currentUser.uid;
-      const userRef = doc(firestoreDB, "users", userUID);
+    if (isSelectionValid) {
+      try {
+        const userUID = firebaseAuth.currentUser.uid;
+        const userRef = doc(firestoreDB, "users", userUID);
 
-      const data = {
-        hobbies: selectedHobbies,
-      };
+        const data = {
+          hobbies: selectedHobbies,
+        };
 
-      await updateDoc(userRef, data);
-      navigation.replace("Home");
-    } catch (error) {
-      console.error("Error updating user document (Register3): ", error);
+        await updateDoc(userRef, data);
+        navigation.replace("Home");
+      } catch (error) {
+        console.error("Error updating user document (Register3): ", error);
+      }
+    } else {
+      // Change the instructions color to red for 3 seconds
+      setIsValidColor("#e24e59");
+      setTimeout(() => {
+        setIsValidColor("#8D8D8D");
+      }, 3000);
     }
   };
 
@@ -91,7 +100,7 @@ const Register3 = () => {
         </View>
         {/* Selection Counter and Message */}
         <View style={styles.selectionInfo}>
-          <Text style={{ color: "#8D8D8D" }}>
+          <Text style={{ color: isValidColor }}>
             {isSelectionValid
               ? `Selected ${selectedHobbies.length} out of 20`
               : "Please select between 5 and 20 hobbies"}

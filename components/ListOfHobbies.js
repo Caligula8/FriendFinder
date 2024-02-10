@@ -199,7 +199,6 @@ const ListOfHobbies = [
       "Learning",
       "Anime",
       "Politics",
-      "Social Activism",
       "Public Speaking",
       "Escape Room",
       "Fashion",

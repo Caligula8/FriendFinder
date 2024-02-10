@@ -1,3 +1,5 @@
+// ExpandedPostScreen.js
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -5,23 +7,71 @@ import {
   ScrollView,
   StyleSheet,
   Image,
-  Modal,
+  TouchableWithoutFeedback,
+  Dimensions,
 } from "react-native";
-import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import NavBar from "../components/Navbar";
 import MessagePromptModal from "../components/MessagePromptModal";
+import ThreeDotsMenu from "../components/ThreeDotsMenu";
 import { globalStyles } from "../styles/globalStyles";
+
+const { height } = Dimensions.get("window");
 
 const ExpandedPostScreen = () => {
   const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [iconLayout, setIconLayout] = useState(null);
+  const iconRef = useRef(null);
+
+  const handleBlockUser = () => {
+    console.log("Blocking user...");
+  };
+
+  const handleReportUser = () => {
+    console.log("Reporting user...");
+  };
+
+  const handleViewProfile = () => {
+    console.log("Viewing user...");
+  };
+
+  const handleDeletePost = () => {
+    // Add logic to handle deleting post
+    console.log("Deleting post...");
+  };
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+
+  const menuOptionHandlers = {
+    1: handleBlockUser,
+    2: handleReportUser,
+    3: handleViewProfile,
+    4: handleDeletePost,
+  };
+
+  const onOptionSelect = (value) => {
+    menuOptionHandlers[value]();
+    setMenuOpen(false);
+  };
+
+  const onTriggerPress = () => {
+    if (iconRef.current) {
+      iconRef.current.measure((x, y, width, height, pageX, pageY) => {
+        setIconLayout({ x: pageX, y: pageY, width, height });
+      });
+    }
+    setMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
   // Dummy image data
   const images = [
     {
@@ -43,17 +93,19 @@ const ExpandedPostScreen = () => {
       <View style={ggg.hideStatusBarHeader} />
       {/* Header */}
       <ScrollView style={ggg.contentContainer}>
-        {/* Back Button */}
         <View style={ggg.postHeaderContainer}>
+          {/* Back Button */}
           <TouchableOpacity
             style={ggg.backButton}
             onPress={() => navigation.goBack()}
           >
             <Ionicons name="arrow-back-outline" size={32} color="black" />
           </TouchableOpacity>
+          {/* Options Button */}
           <TouchableOpacity
+            ref={iconRef}
+            onPress={onTriggerPress}
             style={ggg.optionsButton}
-            onPress={() => navigation.goBack()}
           >
             <MaterialCommunityIcons
               name="dots-vertical"
@@ -61,6 +113,18 @@ const ExpandedPostScreen = () => {
               color="black"
             />
           </TouchableOpacity>
+          {/* Options Menu */}
+          <ThreeDotsMenu
+            isVisible={isMenuOpen}
+            onOptionSelect={onOptionSelect}
+            iconLayout={iconLayout}
+          />
+          {/* Overlay */}
+          {isMenuOpen && (
+            <TouchableWithoutFeedback onPress={closeMenu}>
+              <View style={ggg.overlay} />
+            </TouchableWithoutFeedback>
+          )}
         </View>
         {/* Content */}
         <View style={ggg.subContentContainer}>
@@ -109,13 +173,12 @@ const ExpandedPostScreen = () => {
         <View style={ggg.postFooter} />
       </ScrollView>
 
-      <TouchableOpacity
-        style={ggg.postOpenChatPromptButton}
-        onPress={toggleModal}
-      >
+      {/* Open Chat Prompt Button */}
+      <TouchableOpacity style={ggg.openChatPromptButton} onPress={toggleModal}>
         <Ionicons name="chatbubbles-outline" size={32} color="white" />
       </TouchableOpacity>
 
+      {/* MessagePromptModal */}
       <MessagePromptModal
         isVisible={isModalVisible}
         onClose={toggleModal}
@@ -195,7 +258,7 @@ const ggg = StyleSheet.create({
     top: 7,
     right: 16,
   },
-  postOpenChatPromptButton: {
+  openChatPromptButton: {
     position: "absolute",
     bottom: 85,
     right: 25,
@@ -205,6 +268,15 @@ const ggg = StyleSheet.create({
     backgroundColor: "#74A253",
     justifyContent: "center",
     alignItems: "center",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height,
+    backgroundColor: "transparent",
+    zIndex: 1,
   },
 });
 

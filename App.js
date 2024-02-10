@@ -11,9 +11,13 @@ import {
   Register3,
   WelcomeScreen,
   TestScreen,
+  TestScreen3,
   SplashScreen,
   ChatsListScreen,
   MyProfileScreen,
+  MyPublicProfileScreen,
+  SelectedPublicProfile,
+  ReSelectHobbiesScreen,
   SettingsScreen,
   BrowseCategoriesScreen,
   BrowsePostsScreen,
@@ -44,12 +48,25 @@ const App = () => {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Chats" component={ChatsListScreen} />
           <Stack.Screen name="MyProfile" component={MyProfileScreen} />
+          <Stack.Screen
+            name="MyPublicProfile"
+            component={MyPublicProfileScreen}
+          />
+          <Stack.Screen
+            name="ReSelectHobbies"
+            component={ReSelectHobbiesScreen}
+          />
           <Stack.Screen name="Settings" component={SettingsScreen} />
           <Stack.Screen name="Categories" component={BrowseCategoriesScreen} />
           <Stack.Screen name="Posts" component={BrowsePostsScreen} />
           <Stack.Screen name="FullScreenPost" component={ExpandedPostScreen} />
           <Stack.Screen name="CreatePost" component={CreatePostScreen} />
           <Stack.Screen name="Test" component={TestScreen} />
+          <Stack.Screen name="Test3" component={TestScreen3} />
+          <Stack.Screen
+            name="SelectedPublicProfile"
+            component={SelectedPublicProfile}
+          />
         </Stack.Navigator>
       </Provider>
     </NavigationContainer>

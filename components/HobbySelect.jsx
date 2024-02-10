@@ -40,9 +40,10 @@ const styles = StyleSheet.create({
     borderWidth: 2.5,
     borderColor: "#fff",
     backgroundColor: "#e24e59",
-    shadowColor: "rgba(203, 31, 44, 0.0784313753247261)",
-    shadowRadius: 0,
-    shadowOffset: { width: 0, height: 0 },
+    elevation: 5,
+    shadowColor: "rgba(203, 31, 44, 0.7)",
+    shadowOffset: { width: 5, height: 0 },
+    shadowRadius: 5,
     alignSelf: "center",
   },
   buttonText: {

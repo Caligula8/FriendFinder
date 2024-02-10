@@ -1,93 +1,52 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  TextInput,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../components/Navbar";
-import {
-  collection,
-  doc,
-  getDocs,
-  setDoc,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
-import { firestoreDB, firebaseAuth } from "../config/firebase.config";
-/*import { useAuthState } from "react-firebase-hooks/auth";
-import { useSelector } from "react-redux";*/
+import { collection, getDocs } from "firebase/firestore";
+import { firestoreDB } from "../config/firebase.config";
+import { useSelector } from "react-redux";
+import SelectedPublicProfile from "./SelectedPublicProfile";
 
 const TestScreen = () => {
   const navigation = useNavigation();
   const [userUIDs, setUserUIDs] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [message, setMessage] = useState("");
+  const [selectedUserID, setSelectedUserID] = useState(null);
   const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
     const fetchUserIDs = async () => {
-      const querySnapshot = await getDocs(collection(firestoreDB, "users"));
-      const uids = querySnapshot.docs.map((doc) => doc.id);
-      setUserUIDs(uids);
+      try {
+        const querySnapshot = await getDocs(collection(firestoreDB, "users"));
+        const users = querySnapshot.docs.map((doc) => ({
+          uid: doc.id,
+          displayName: doc.get("displayName"),
+        }));
+        setUserUIDs(users);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     };
 
     fetchUserIDs();
   }, []);
 
-  const createNewChat = async () => {
-    if (selectedUser && user) {
-      console.log("user.id:", user._id);
-      console.log("selectedUser:", selectedUser);
-      console.log("selectedUserEmail:", selectedUser);
-
-      const chatMembers = {
-        [user._id]: true,
-        [selectedUser]: true,
-      };
-
-      // Create a unique chat ID
-      const chatID = `${user._id}_${selectedUser}`;
-
-      // Add a new document to the chats collection
-      const chatDocRef = await setDoc(doc(firestoreDB, "chats", chatID), {
-        members: chatMembers,
-        createdAt: serverTimestamp(),
-      });
-
-      // Add chat reference to both users
-      const userChatRef = doc(firestoreDB, "users", user._id);
-      const selectedUserChatRef = doc(firestoreDB, "users", selectedUser);
-
-      await updateDoc(userChatRef, {
-        chats: {
-          [selectedUser]: chatID,
-        },
-      });
-
-      await updateDoc(selectedUserChatRef, {
-        chats: {
-          [user._id]: chatID,
-        },
-      });
-
-      navigation.replace("Chats");
-    }
+  const navigateToSelectedProfile = (userID) => {
+    setSelectedUserID(userID);
+    navigation.navigate("SelectedPublicProfile", { userID });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        {userUIDs.map((uid, index) => (
+        {userUIDs.map((userData, index) => (
           <TouchableOpacity
             key={index}
             style={styles.userContainer}
-            onPress={() => setSelectedUser(uid)}
+            onPress={() => navigateToSelectedProfile(userData.uid)}
           >
-            <Text style={styles.usersName}>{uid}</Text>
+            <Text style={styles.usersName}>
+              {`${userData.displayName} : ${userData.uid}`}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -96,44 +55,6 @@ const TestScreen = () => {
       <View style={styles.footer}>
         <NavBar />
       </View>
-
-      {/* Message Input Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={selectedUser !== null}
-        onRequestClose={() => setSelectedUser(null)}
-      >
-        <TouchableOpacity
-          style={styles.modalBackdrop}
-          activeOpacity={1}
-          onPress={() => setSelectedUser(null)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>
-                Send a message to {selectedUser}
-              </Text>
-              <TextInput
-                style={styles.messageInput}
-                onChangeText={(text) => setMessage(text)}
-                value={message}
-                placeholder="Type your message here"
-              />
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => {
-                  createNewChat();
-                  setSelectedUser(null); // Reset selected user
-                  setMessage(""); // Clear the message input
-                }}
-              >
-                <Text style={styles.modalButtonText}>Send</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </Modal>
     </View>
   );
 };
@@ -168,45 +89,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textTransform: "capitalize",
     marginLeft: 16,
-  },
-  modalBackdrop: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "100%",
-    alignItems: "center",
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  messageInput: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    width: "100%",
-  },
-  modalButton: {
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: "#e24e59",
-    alignItems: "center",
-  },
-  modalButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });
 

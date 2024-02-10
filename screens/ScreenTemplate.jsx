@@ -6,11 +6,13 @@ import {
   StyleSheet,
 } from "react-native";
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import NavBar from "../components/Navbar";
 import { globalStyles } from "../styles/globalStyles";
 
 const BrowseCategoriesScreen = () => {
+  const navigation = useNavigation();
   return (
     <View style={globalStyles.pageContainer}>
       {/* Header */}

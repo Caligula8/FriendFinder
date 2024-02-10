@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  Button,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { globalStyles } from "../styles/globalStyles";
@@ -13,10 +14,13 @@ import { Ionicons } from "@expo/vector-icons";
 import ContinueButton from "../components/ContinueButton";
 import NavBar from "../components/Navbar";
 import { useSelector } from "react-redux";
+import { updateDoc, doc } from "firebase/firestore";
+import { firestoreDB } from "../config/firebase.config";
+import { debounce } from "lodash";
 
 const MyProfileScreen = () => {
   const navigation = useNavigation();
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user.user);
   const [aboutMeText, setAboutMeText] = useState("");
 
   const handleSettingsRedirect = () => {
@@ -24,11 +28,37 @@ const MyProfileScreen = () => {
   };
 
   const handleSelectHobbies = () => {
-    //navigation.navigate("Register3");
+    navigation.navigate("ReSelectHobbies");
   };
 
   const handleViewPublicProfile = () => {
-    //navigation.navigate("Register3");
+    navigation.navigate("MyPublicProfile");
+  };
+
+  // Debounce function to delay save operation
+  const debouncedSave = useCallback(
+    debounce((text) => handleSaveAboutMe(text), 1000),
+    [] // Empty dependency array to ensure the function is memoized
+  );
+
+  const handleSaveAboutMe = async (text) => {
+    try {
+      const trimmedText = text ? text.trim() : "";
+
+      if (user && user._id && trimmedText) {
+        const userRef = doc(firestoreDB, "users", user._id);
+
+        await updateDoc(userRef, {
+          description: trimmedText,
+        });
+
+        console.log("About Me updated successfully!");
+      } else {
+        console.error("User, user ID, or About Me text is missing");
+      }
+    } catch (error) {
+      console.error("Error updating About Me:", error);
+    }
   };
 
   // Check if the profile image exists
@@ -75,8 +105,12 @@ const MyProfileScreen = () => {
             placeholder="Write about yourself..."
             multiline
             value={aboutMeText}
-            onChangeText={(text) => setAboutMeText(text)}
+            onChangeText={(text) => {
+              setAboutMeText(text);
+              debouncedSave(text);
+            }}
           />
+
           {/* Primary Hobbies */}
           <Text style={globalStyles.subTitle}>Primary Hobbies</Text>
           <View style={ggg.hobbiesButtonContainer}>

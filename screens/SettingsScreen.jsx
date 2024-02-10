@@ -65,7 +65,7 @@ const SettingsScreen = () => {
 
         <TouchableOpacity
           style={ggg.settingsItem}
-          onPress={() => navigateToPage("Notifications")}
+          onPress={() => navigateToPage("Test")}
         >
           <Ionicons
             name="notifications-outline"
@@ -93,13 +93,18 @@ const SettingsScreen = () => {
           style={ggg.settingsItem}
           onPress={() => navigateToPage("BlockedList")}
         >
-          <MaterialIcons name="block" size={24} color="black" />
+          <Ionicons
+            name="ban-outline"
+            size={24}
+            color="black"
+            style={ggg.settingsIcon}
+          />
           <Text style={ggg.settingsText}>Manage Blocked List</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={ggg.settingsItem}
-          onPress={() => navigateToPage("TermsOfService")}
+          onPress={() => navigateToPage("Test3")}
         >
           <Ionicons
             name="file-tray-full-outline"

@@ -31,8 +31,8 @@ const SplashScreen = () => {
         setInitialCheckDone(true);
       }
     });
-
-    return () => unsubscribe(); // Cleanup the listener on component unmount
+    // Cleanup the listener on component unmount
+    return () => unsubscribe();
   }, [dispatch]);
 
   useEffect(() => {
