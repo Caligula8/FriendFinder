@@ -25,6 +25,8 @@ import {
   collection,
   updateDoc,
 } from "firebase/firestore";
+import { firebaseStorage } from "../config/firebase.config";
+import { ref } from "firebase/storage";
 
 const CreatePostScreen = () => {
   const navigation = useNavigation();
@@ -111,13 +113,27 @@ const CreatePostScreen = () => {
     newImages.splice(index, 1);
     setImages(newImages);
   };
+  const time = Timestamp.now().getSeconds();
+  const userID = firebaseAuth.currentUser.uid;
+  let fileCounter = 0;
+  const storageRefArr = [];
+  // const storageRef = ref(firebaseStorage);
+
+  const handleAttachImages11111111111 = () => {
+    // make file path
+    const path = userID + "/" + time + "_" + fileCounter;
+    fileCounter = fileCounter + 1;
+    // make storage reference
+    const storageRef = ref(firebaseStorage, path);
+    // storageRefArr.push({ file: ...uploadedFile, ref: ...storageRef });
+    //navigation.navigate("Register3");
+  };
 
   const handleSelectTags = () => {
     // Handle tag selection
   };
 
   const handlePost = async () => {
-    const userID = firebaseAuth.currentUser.uid;
     const userRef = doc(firestoreDB, "users", userID);
 
     const postRef = await addDoc(collection(firestoreDB, "posts"), {
