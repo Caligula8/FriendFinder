@@ -113,7 +113,9 @@ const CreatePostScreen = () => {
     newImages.splice(index, 1);
     setImages(newImages);
   };
-  const time = Timestamp.now().getSeconds();
+
+  const time = Timestamp.now();
+  //const time = Timestamp.now().getSeconds();
   const userID = firebaseAuth.currentUser.uid;
   let fileCounter = 0;
   const storageRefArr = [];
