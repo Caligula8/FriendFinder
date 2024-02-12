@@ -75,7 +75,7 @@ const CreatePostScreen = () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync(options);
 
-      if (!result.cancelled && result.assets && result.assets.length > 0) {
+      if (!result.canceled && result.assets && result.assets.length > 0) {
         // Use the first asset's URI
         const selectedUri = result.assets[0].uri;
         // Update state with selected image URI
