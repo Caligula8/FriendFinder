@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,22 +6,36 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
-  Button,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { globalStyles } from "../styles/globalStyles";
-import { Ionicons } from "@expo/vector-icons";
 import ContinueButton from "../components/ContinueButton";
 import NavBar from "../components/Navbar";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { SET_USER } from "../context/actions/userActions";
 import { updateDoc, doc } from "firebase/firestore";
-import { firestoreDB } from "../config/firebase.config";
+import { firebaseStorage, firestoreDB } from "../config/firebase.config";
 import { debounce } from "lodash";
+import * as ImagePicker from "expo-image-picker";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const MyProfileScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  const [aboutMeText, setAboutMeText] = useState("");
+  const [aboutMeText, setAboutMeText] = useState(user?.description || "");
+  const [profileImage, setProfileImage] = useState(user?.photoURL || null);
+
+  // Initialize aboutMeText state when the component mounts
+  useEffect(() => {
+    setAboutMeText(user?.description || "");
+  }, [user]);
+
+  // Initialize profileImage state when the component mounts
+  useEffect(() => {
+    setProfileImage(user?.photoURL || null);
+  }, [user]);
 
   const handleSettingsRedirect = () => {
     navigation.navigate("Settings");
@@ -35,10 +49,9 @@ const MyProfileScreen = () => {
     navigation.navigate("MyPublicProfile");
   };
 
-  // Debounce function to delay save operation
   const debouncedSave = useCallback(
     debounce((text) => handleSaveAboutMe(text), 1000),
-    [] // Empty dependency array to ensure the function is memoized
+    []
   );
 
   const handleSaveAboutMe = async (text) => {
@@ -52,6 +65,8 @@ const MyProfileScreen = () => {
           description: trimmedText,
         });
 
+        // Dispatch the action to update Redux store
+        dispatch(SET_USER({ ...user, description: trimmedText }));
         console.log("About Me updated successfully!");
       } else {
         console.error("User, user ID, or About Me text is missing");
@@ -61,9 +76,45 @@ const MyProfileScreen = () => {
     }
   };
 
-  // Check if the profile image exists
-  const hasProfileImage =
-    user?.profilePic !== undefined && user?.profilePic !== null;
+  const handleUploadImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 1,
+      });
+
+      if (!result.cancelled && result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0];
+        const imageUri = selectedImage.uri;
+        const fileExtension = imageUri.split(".").pop(); // Extract file extension
+
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+
+        // Create storage reference with file extension
+        const storageRef = ref(
+          firebaseStorage,
+          `profile_images/${user._id}.${fileExtension}`
+        );
+
+        await uploadBytes(storageRef, blob); // Upload image to Firebase Storage
+        const downloadURL = await getDownloadURL(storageRef); // Get URL
+
+        // Update user photoURL field in Firestore
+        const userRef = doc(firestoreDB, "users", user._id);
+        await updateDoc(userRef, { photoURL: downloadURL });
+
+        // Dispatch the action to update Redux store
+        dispatch(SET_USER({ ...user, photoURL: downloadURL }));
+        console.log("Profile image uploaded successfully!");
+      }
+    } catch (error) {
+      console.error("Error uploading profile image:", error);
+    }
+  };
+
+  const hasProfileImage = profileImage !== null;
 
   return (
     <View style={globalStyles.pageContainer}>
@@ -84,14 +135,29 @@ const MyProfileScreen = () => {
         {/* Profile Image */}
         <View style={ggg.profileImageContainer}>
           {hasProfileImage ? (
-            <Image
-              source={{ uri: user?.profilePic }}
-              style={ggg.profileImage}
-              resizeMode="cover"
-            />
+            <View>
+              <Image
+                source={{ uri: profileImage }}
+                style={ggg.profileImage}
+                resizeMode="cover"
+                onError={(error) => console.error("Image Error:", error)}
+              />
+              <TouchableOpacity
+                style={ggg.uploadProfileImageButton}
+                onPress={() => handleUploadImage()}
+              >
+                <MaterialIcons name="edit" size={22} color="white" />
+              </TouchableOpacity>
+            </View>
           ) : (
             <View style={ggg.profileImage}>
               <Ionicons name="person" size={110} color="grey" />
+              <TouchableOpacity
+                style={ggg.uploadProfileImageButton}
+                onPress={() => handleUploadImage()}
+              >
+                <MaterialIcons name="edit" size={22} color="white" />
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -162,6 +228,15 @@ const ggg = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#d3d3d3",
+    position: "relative",
+  },
+  uploadProfileImageButton: {
+    position: "absolute",
+    bottom: -10,
+    right: -12,
+    backgroundColor: "grey",
+    borderRadius: 100,
+    padding: 5,
   },
   buttonContainer: {
     width: "100%",

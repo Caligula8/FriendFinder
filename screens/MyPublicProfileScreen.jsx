@@ -20,8 +20,9 @@ const MyPublicProfileScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
 
-  const displayName = user ? user.displayName || "Guest" : "Guest";
-  const userHobbies = user ? user.hobbies || [] : [];
+  const displayName = user.displayName || "Guest";
+  const userHobbies = user.hobbies || [];
+  const description = user?.description || "No description available";
 
   return (
     <View style={globalStyles.pageContainer}>
@@ -53,10 +54,11 @@ const MyPublicProfileScreen = () => {
           {/* About Me */}
           <View style={ggg.profileElementContainer}>
             <Text style={ggg.subTitle}>About Me</Text>
-            {/* Replace dummy text, hide if no description */}
-            <Text style={ggg.text}>The five boxing wizards jump quickly</Text>
+            {/* Hide if no description */}
+            <Text style={ggg.text}>{description}</Text>
           </View>
           {/* Primary Hobbies */}
+          {/* Need to hide if no primary hobbies */}
           <View style={ggg.profileElementContainer}>
             <Text style={ggg.subTitle}>Im Most Interested In</Text>
             <View style={ggg.primaryHobbiesContainer}>
