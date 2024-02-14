@@ -1,4 +1,3 @@
-// TestScreen3.js
 import React, { useState, useRef } from "react";
 import {
   View,
@@ -12,10 +11,12 @@ import { useNavigation } from "@react-navigation/native";
 import ThreeDotsMenu from "../components/ThreeDotsMenu";
 import NavBar from "../components/Navbar";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import SelectPrimaryHobbiesMenu from "../components/SelectPrimaryHobbiesMenu";
 
 const TestScreen3 = () => {
   const navigation = useNavigation();
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isHobbiesMenuOpen, setHobbiesMenuOpen] = useState(false);
   const [iconLayout, setIconLayout] = useState(null);
   const iconRef = useRef(null);
 
@@ -36,6 +37,14 @@ const TestScreen3 = () => {
 
   const closeMenu = () => {
     setMenuOpen(false);
+  };
+
+  const openHobbiesMenu = () => {
+    setHobbiesMenuOpen(true);
+  };
+
+  const closeHobbiesMenu = () => {
+    setHobbiesMenuOpen(false);
   };
 
   return (
@@ -71,6 +80,15 @@ const TestScreen3 = () => {
         {/* Content */}
         <View style={styles.contentContainer}>
           <Text>TestScreen3 Content Goes Here</Text>
+          {/* Button to open Hobbies Menu */}
+          <TouchableOpacity onPress={openHobbiesMenu}>
+            <Text style={styles.buttonText}>Open Hobbies Menu</Text>
+          </TouchableOpacity>
+          {/* Hobbies Menu */}
+          <SelectPrimaryHobbiesMenu
+            isVisible={isHobbiesMenuOpen}
+            onClose={closeHobbiesMenu}
+          />
         </View>
 
         {/* Footer */}
@@ -117,6 +135,10 @@ const styles = StyleSheet.create({
     borderTopColor: "#ddd",
     backgroundColor: "#fff",
     elevation: 3,
+  },
+  buttonText: {
+    color: "blue",
+    marginTop: 20,
   },
 });
 

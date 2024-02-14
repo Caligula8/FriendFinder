@@ -12,6 +12,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { globalStyles } from "../styles/globalStyles";
 import ContinueButton from "../components/ContinueButton";
 import NavBar from "../components/Navbar";
+import SelectPrimaryHobbiesMenu from "../components/SelectPrimaryHobbiesMenu";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_USER } from "../context/actions/userActions";
 import { updateDoc, doc } from "firebase/firestore";
@@ -26,6 +27,10 @@ const MyProfileScreen = () => {
   const user = useSelector((state) => state.user.user);
   const [aboutMeText, setAboutMeText] = useState(user?.description || "");
   const [profileImage, setProfileImage] = useState(user?.photoURL || null);
+  const hobbyButtonLabels = [0, 1, 2].map(
+    (index) => user.primaryHobbies[index] || "Select"
+  );
+  const [isHobbiesMenuOpen, setHobbiesMenuOpen] = useState(false);
 
   // Initialize aboutMeText state when the component mounts
   useEffect(() => {
@@ -42,7 +47,7 @@ const MyProfileScreen = () => {
   };
 
   const handleSelectHobbies = () => {
-    navigation.navigate("ReSelectHobbies");
+    setHobbiesMenuOpen(true);
   };
 
   const handleViewPublicProfile = () => {
@@ -180,15 +185,15 @@ const MyProfileScreen = () => {
           {/* Primary Hobbies */}
           <Text style={globalStyles.subTitle}>Primary Hobbies</Text>
           <View style={ggg.hobbiesButtonContainer}>
-            <TouchableOpacity style={ggg.hobbiesButton}>
-              <Text style={ggg.hobbiesButtonText}>Hobby 1</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={ggg.hobbiesButton}>
-              <Text style={ggg.hobbiesButtonText}>Hobby 2</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={ggg.hobbiesButton}>
-              <Text style={ggg.hobbiesButtonText}>Hobby 3</Text>
-            </TouchableOpacity>
+            {hobbyButtonLabels.map((label, index) => (
+              <TouchableOpacity
+                key={index}
+                style={ggg.hobbiesButton}
+                onPress={handleSelectHobbies}
+              >
+                <Text style={ggg.hobbiesButtonText}>{label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
@@ -196,12 +201,12 @@ const MyProfileScreen = () => {
         <View style={ggg.buttonContainer}>
           <ContinueButton
             onPress={handleSelectHobbies}
-            buttonText="Select Hobbies"
+            buttonText="Modify My Hobbies"
             transparency={0.7}
           />
           <ContinueButton
             onPress={handleViewPublicProfile}
-            buttonText="View Public Profile"
+            buttonText="View My Public Profile"
             transparency={0.7}
           />
         </View>
@@ -210,11 +215,35 @@ const MyProfileScreen = () => {
       <View style={globalStyles.footer}>
         <NavBar />
       </View>
+
+      {/* Transparent Overlay */}
+      {isHobbiesMenuOpen && (
+        <View style={ggg.overlay}>
+          {/* Centered SelectPrimaryHobbiesMenu */}
+          <View style={ggg.menuContainer}>
+            <SelectPrimaryHobbiesMenu
+              isVisible={isHobbiesMenuOpen}
+              onClose={() => setHobbiesMenuOpen(false)}
+            />
+          </View>
+        </View>
+      )}
     </View>
   );
 };
 
 const ggg = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+    zIndex: 1,
+  },
+  menuContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
+  },
   profileImageContainer: {
     alignItems: "center",
     paddingTop: 18,
@@ -259,6 +288,8 @@ const ggg = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 10,
+    //borderWidth: 1,
+    //borderColor: "green",
   },
   hobbiesButton: {
     flex: 1,
@@ -266,7 +297,7 @@ const ggg = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 10,
     borderColor: "#fddbdd",
-    padding: 10,
+    padding: 1,
     marginHorizontal: 5,
     backgroundColor: "#fff",
     alignItems: "center",

@@ -20,9 +20,19 @@ const MyPublicProfileScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
 
+  useEffect(() => {
+    console.log(
+      "MyPublicProfileScreen mounted or user changed:",
+      user.primaryHobbies
+    );
+  }, [user]);
+
   const displayName = user.displayName || "Guest";
   const userHobbies = user.hobbies || [];
   const description = user?.description || "No description available";
+  const hobbyButtonLabels = [0, 1, 2].map(
+    (index) => user.primaryHobbies[index] || "Not Selected"
+  );
 
   return (
     <View style={globalStyles.pageContainer}>
@@ -36,25 +46,15 @@ const MyPublicProfileScreen = () => {
           >
             <Ionicons name="arrow-back-outline" size={32} color="black" />
           </TouchableOpacity>
-          {/* Options Button */}
-          <TouchableOpacity
-            style={ggg.optionsButton}
-            onPress={() => navigation.goBack()}
-          >
-            <MaterialCommunityIcons
-              name="dots-vertical"
-              size={32}
-              color="black"
-            />
-          </TouchableOpacity>
+          {/* Title */}
           <Text style={ggg.profileTitle}>Hi, I'm {displayName}</Text>
         </View>
         {/* Content */}
         <View style={ggg.subContentContainer}>
           {/* About Me */}
+          {/* Hide if no description */}
           <View style={ggg.profileElementContainer}>
             <Text style={ggg.subTitle}>About Me</Text>
-            {/* Hide if no description */}
             <Text style={ggg.text}>{description}</Text>
           </View>
           {/* Primary Hobbies */}
@@ -62,15 +62,11 @@ const MyPublicProfileScreen = () => {
           <View style={ggg.profileElementContainer}>
             <Text style={ggg.subTitle}>Im Most Interested In</Text>
             <View style={ggg.primaryHobbiesContainer}>
-              <View style={ggg.primaryHobby}>
-                <Text style={ggg.primaryHobbyText}>Hobby 1</Text>
-              </View>
-              <View style={ggg.primaryHobby}>
-                <Text style={ggg.primaryHobbyText}>Hobby 2</Text>
-              </View>
-              <View style={ggg.primaryHobby}>
-                <Text style={ggg.primaryHobbyText}>Hobby 3</Text>
-              </View>
+              {hobbyButtonLabels.map((label, index) => (
+                <View key={index} style={ggg.primaryHobby}>
+                  <Text style={ggg.primaryHobbyText}>{label}</Text>
+                </View>
+              ))}
             </View>
           </View>
           {/* All Hobbies */}
@@ -107,8 +103,6 @@ const ggg = StyleSheet.create({
     position: "relative",
     justifyContent: "center",
     alignItems: "center",
-    //borderColor: "green",
-    //borderWidth: 1,
   },
   profileElementContainer: {
     width: "100%",
