@@ -21,4 +21,5 @@ export { default as CreatePostScreen } from "./CreatePostScreen";
 export { default as SettingsScreen } from "./SettingsScreen";
 export { default as ReSelectHobbiesScreen } from "./ReSelectHobbiesScreen";
 export { default as TestScreen } from "./TestScreen";
+export { default as TestScreen2 } from "./TestScreen2";
 export { default as TestScreen3 } from "./TestScreen3";

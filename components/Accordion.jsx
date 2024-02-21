@@ -29,9 +29,9 @@ const Accordion = ({
           {hobbies.map((hobby, index) => (
             <MemoizedHobbySelect
               key={index}
-              HobbyName={hobby}
-              isSelected={selectedHobbies.includes(hobby)}
-              onSelect={(isSelected) => onHobbySelect(hobby, isSelected)}
+              HobbyName={hobby.name}
+              isSelected={selectedHobbies.includes(hobby.name)}
+              onSelect={(isSelected) => onHobbySelect(hobby.name, isSelected)}
             />
           ))}
         </View>

@@ -117,7 +117,7 @@ const SettingsScreen = () => {
 
         <TouchableOpacity
           style={ggg.settingsItem}
-          onPress={() => navigateToPage("PrivacyPolicy")}
+          onPress={() => navigateToPage("Test2")}
         >
           <Ionicons
             name="lock-closed-outline"

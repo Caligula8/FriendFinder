@@ -1,180 +1,93 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  TextInput,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import NavBar from "../components/Navbar";
-import {
-  collection,
-  doc,
-  getDocs,
-  setDoc,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { firestoreDB } from "../config/firebase.config";
-import { useSelector } from "react-redux";
 
-const TestScreen = () => {
-  const navigation = useNavigation();
-  const [userUIDs, setUserUIDs] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [message, setMessage] = useState("");
-  const user = useSelector((state) => state.user.user);
+const TestScreen2 = () => {
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const fetchUserIDs = async () => {
-      const querySnapshot = await getDocs(collection(firestoreDB, "users"));
-      const uids = querySnapshot.docs.map((doc) => doc.id);
-      setUserUIDs(uids);
+    const fetchHobbies = async () => {
+      try {
+        const hobbiesCollection = collection(firestoreDB, "hobbies");
+        const hobbiesSnapshot = await getDocs(hobbiesCollection);
+
+        // Organize hobbies by category
+        const categoriesData = {};
+
+        hobbiesSnapshot.forEach((hobbyDoc) => {
+          const hobbyData = hobbyDoc.data();
+          const categoryName = hobbyData.category;
+
+          if (!categoriesData[categoryName]) {
+            categoriesData[categoryName] = {
+              name: categoryName,
+              hobbies: [],
+            };
+          }
+
+          categoriesData[categoryName].hobbies.push({
+            id: hobbyDoc.id,
+            name: hobbyDoc.id,
+          });
+        });
+
+        // Define desired category order
+        const desiredOrder = [
+          "Sports and Fitness",
+          "Technology and Gaming",
+          "Nature and Science",
+          "Music and Performance",
+          "Crafting Hobbies",
+          "Collecting Hobbies",
+          "Culinary Hobbies",
+          "General Hobbies",
+        ];
+
+        // Sort categories based on the defined order
+        const sortedCategories = desiredOrder.map(
+          (categoryName) => categoriesData[categoryName]
+        );
+
+        // Convert object to array
+        const categoriesArray = sortedCategories.filter(Boolean);
+
+        setCategories(categoriesArray);
+      } catch (error) {
+        console.error("Error fetching hobbies:", error);
+      }
     };
 
-    fetchUserIDs();
+    // Call the function
+    fetchHobbies();
   }, []);
-
-  useEffect(() => {
-    const fetchUserEmails = async () => {
-      const usersSnapshot = await getDocs(collection(firestoreDB, "users"));
-      const userDataArray = usersSnapshot.docs.map((userDoc) => userDoc.data());
-      setUserEmails(userDataArray); // Set user data array
-    };
-
-    fetchUserEmails();
-  }, []);
-
-  const createNewChat = async () => {
-    if (selectedUser && user) {
-      console.log("user.email:", user.email);
-      console.log("selectedUser:", selectedUser);
-
-      const chatMembers = {
-        [user.email]: true,
-        [selectedUser]: true,
-      };
-
-      // add a new document to the chats collection
-      const chatDocRef = await addDoc(collection(firestoreDB, "chats"), {
-        members: chatMembers,
-        createdAt: serverTimestamp(),
-      });
-
-      // Add chat reference to both users
-      const userChatRef = doc(firestoreDB, "users", user.email);
-      const selectedUserChatRef = doc(firestoreDB, "users", selectedUser);
-
-      await updateDoc(userChatRef, {
-        chats: {
-          [selectedUser]: chatDocRef.id,
-        },
-      });
-
-      await updateDoc(selectedUserChatRef, {
-        chats: {
-          [user.email]: chatDocRef.id,
-        },
-      });
-
-      navigation.replace("Chats");
-    }
-  };
-
-  const createNewChat2 = async () => {
-    if (selectedUser && user) {
-      console.log("user.id:", user._id);
-      console.log("selectedUser:", selectedUser);
-
-      const chatMembers = {
-        [user._id]: true,
-        [selectedUser]: true,
-      };
-
-      // add a new document to the chats collection
-      const chatDocRef = await addDoc(collection(firestoreDB, "chats"), {
-        members: chatMembers,
-        createdAt: serverTimestamp(),
-      });
-
-      // Add chat reference to both users
-      const userChatRef = doc(firestoreDB, "users", user._id);
-      const selectedUserChatRef = doc(firestoreDB, "users", selectedUser);
-
-      await updateDoc(userChatRef, {
-        chats: {
-          [selectedUser]: chatDocRef.id,
-        },
-      });
-
-      await updateDoc(selectedUserChatRef, {
-        chats: {
-          [user._id]: chatDocRef.id,
-        },
-      });
-
-      navigation.replace("Chats");
-    }
-  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        {userUIDs.map((uid, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.userContainer}
-            onPress={() => setSelectedUser(uid)}
-          >
-            <Text style={styles.usersName}>{uid}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <ScrollView>
+        <View style={styles.contentContainer}>
+          {categories.map((category) => (
+            <View key={category.name} style={styles.categoryContainer}>
+              <Text style={styles.categoryName}>{category.name}</Text>
+              {category.hobbies && category.hobbies.length > 0 && (
+                <View style={styles.hobbiesContainer}>
+                  {category.hobbies.map((hobby) => (
+                    <Text key={hobby.id} style={styles.hobbyName}>
+                      {hobby.name}
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
 
       {/* Footer & Navbar */}
       <View style={styles.footer}>
         <NavBar />
       </View>
-
-      {/* Message Input Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={selectedUser !== null}
-        onRequestClose={() => setSelectedUser(null)}
-      >
-        <TouchableOpacity
-          style={styles.modalBackdrop}
-          activeOpacity={1}
-          onPress={() => setSelectedUser(null)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>
-                Send a message to {selectedUser}
-              </Text>
-              <TextInput
-                style={styles.messageInput}
-                onChangeText={(text) => setMessage(text)}
-                value={message}
-                placeholder="Type your message here"
-              />
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => {
-                  createNewChat();
-                  setSelectedUser(null); // Reset selected user
-                  setMessage(""); // Clear the message input
-                }}
-              >
-                <Text style={styles.modalButtonText}>Send</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </Modal>
     </View>
   );
 };
@@ -186,69 +99,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   contentContainer: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
+  },
+  categoryContainer: {
+    marginBottom: 20,
+  },
+  categoryName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  hobbiesContainer: {
+    marginLeft: 20,
+  },
+  hobbyName: {
+    fontSize: 16,
+    color: "#555",
   },
   footer: {
     width: "100%",
   },
-  userContainer: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  usersName: {
-    color: "#333",
-    fontSize: 16,
-    fontWeight: "600",
-    textTransform: "capitalize",
-    marginLeft: 16,
-  },
-  modalBackdrop: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "100%",
-    alignItems: "center",
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  messageInput: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    width: "100%",
-  },
-  modalButton: {
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: "#e24e59",
-    alignItems: "center",
-  },
-  modalButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
 });
 
-export default TestScreen;
+export default TestScreen2;

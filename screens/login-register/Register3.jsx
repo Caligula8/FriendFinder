@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,14 +10,13 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import Accordion from "../../components/Accordion";
 import ContinueButton from "../../components/ContinueButton";
-import ListOfHobbies from "../../components/ListOfHobbies";
-
-import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, doc, updateDoc, getDocs } from "firebase/firestore";
+import { firestoreDB, firebaseAuth } from "../../config/firebase.config";
 
 const Register3 = () => {
   const navigation = useNavigation();
   const [openAccordionIndex, setOpenAccordionIndex] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
   const isSelectionValid =
     selectedHobbies.length >= 5 && selectedHobbies.length <= 20;
@@ -61,6 +60,62 @@ const Register3 = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchHobbies = async () => {
+      try {
+        const hobbiesCollection = collection(firestoreDB, "hobbies");
+        const hobbiesSnapshot = await getDocs(hobbiesCollection);
+
+        // Organize hobbies by category
+        const categoriesData = {};
+
+        hobbiesSnapshot.forEach((hobbyDoc) => {
+          const hobbyData = hobbyDoc.data();
+          const categoryName = hobbyData.category;
+
+          if (!categoriesData[categoryName]) {
+            categoriesData[categoryName] = {
+              name: categoryName,
+              hobbies: [],
+            };
+          }
+
+          categoriesData[categoryName].hobbies.push({
+            id: hobbyDoc.id,
+            name: hobbyDoc.id,
+          });
+        });
+
+        // Define desired category order
+        const desiredOrder = [
+          "Sports and Fitness",
+          "Technology and Gaming",
+          "Nature and Science",
+          "Music and Performance",
+          "Crafting Hobbies",
+          "Collecting Hobbies",
+          "Culinary Hobbies",
+          "General Hobbies",
+        ];
+
+        // Sort categories based on the defined order
+        const sortedCategories = desiredOrder.map(
+          (categoryName) => categoriesData[categoryName]
+        );
+
+        // Convert object to array
+        const categoriesArray = sortedCategories.filter(Boolean);
+
+        console.log("Completed List:", categoriesData);
+        setCategories(categoriesArray);
+      } catch (error) {
+        console.error("Error fetching hobbies:", error);
+      }
+    };
+
+    fetchHobbies();
+  }, []);
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -77,10 +132,10 @@ const Register3 = () => {
         </View>
         {/* Accordions */}
         <View style={styles.accordionContainer}>
-          {ListOfHobbies.map((data, index) => (
+          {categories.map((data, index) => (
             <Accordion
               key={index}
-              title={data.title}
+              title={data.name}
               hobbies={data.hobbies}
               isOpen={index === openAccordionIndex}
               onPress={() => handleAccordionPress(index)}

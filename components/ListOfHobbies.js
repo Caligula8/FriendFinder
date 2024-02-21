@@ -192,7 +192,6 @@ const ListOfHobbies = [
       "Volunteering",
       "Writing",
       "Reading",
-      "Board Games",
       "Astrology",
       "Podcasts",
       "Meditation",

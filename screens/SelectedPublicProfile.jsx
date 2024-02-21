@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -41,8 +41,19 @@ const SelectedPublicProfile = ({ route }) => {
     }
   }, [userID]);
 
-  const displayName = selectedUser?.displayName || "Guest";
-  const userHobbies = selectedUser?.hobbies || [];
+  const displayName =
+    selectedUser && selectedUser.displayName
+      ? selectedUser.displayName
+      : "Guest";
+  const userHobbies =
+    selectedUser && selectedUser.hobbies ? selectedUser.hobbies : [];
+  const primaryHobbies =
+    selectedUser && selectedUser.primaryHobbies
+      ? selectedUser.primaryHobbies
+      : [];
+  const hobbyButtonLabels = [0, 1, 2].map(
+    (index) => primaryHobbies[index] || "Not Selected"
+  );
 
   const [isModalVisible, setModalVisible] = useState(false);
 
@@ -51,6 +62,8 @@ const SelectedPublicProfile = ({ route }) => {
   };
 
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [iconLayout, setIconLayout] = useState(null);
+  const iconRef = useRef(null);
 
   const onBackdropPress = () => {
     setMenuOpen(false);
@@ -63,7 +76,16 @@ const SelectedPublicProfile = ({ route }) => {
   };
 
   const onTriggerPress = () => {
-    setMenuOpen(true);
+    if (iconRef.current) {
+      iconRef.current.measure((x, y, width, height, pageX, pageY) => {
+        setIconLayout({ x: pageX, y: pageY, width, height });
+      });
+    }
+    setMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
   };
 
   return (
@@ -80,22 +102,29 @@ const SelectedPublicProfile = ({ route }) => {
               <Ionicons name="arrow-back-outline" size={32} color="black" />
             </TouchableOpacity>
             {/* Options Button */}
-            {/* <TouchableOpacity
-            style={ggg.optionsButton}
-            onPress={() => navigation.goBack()}
-          >
-            <MaterialCommunityIcons
-              name="dots-vertical"
-              size={32}
-              color="black"
-            />
-          </TouchableOpacity> */}
+            <TouchableOpacity
+              ref={iconRef}
+              onPress={onTriggerPress}
+              style={ggg.optionsButton}
+            >
+              <MaterialCommunityIcons
+                name="dots-vertical"
+                size={32}
+                color="black"
+              />
+            </TouchableOpacity>
+            {/* Options Menu */}
             <ThreeDotsMenu
-              isOpen={isMenuOpen}
-              onBackdropPress={onBackdropPress}
+              isVisible={isMenuOpen}
               onOptionSelect={onOptionSelect}
-              onTriggerPress={onTriggerPress}
+              iconLayout={iconLayout}
             />
+            {/* Overlay */}
+            {isMenuOpen && (
+              <TouchableWithoutFeedback onPress={closeMenu}>
+                <View style={ggg.overlay} />
+              </TouchableWithoutFeedback>
+            )}
             <Text style={ggg.profileTitle}>Hi, I'm {displayName}</Text>
           </View>
           {/* Content */}
@@ -111,15 +140,11 @@ const SelectedPublicProfile = ({ route }) => {
             <View style={ggg.profileElementContainer}>
               <Text style={ggg.subTitle}>I'm Most Interested In</Text>
               <View style={ggg.primaryHobbiesContainer}>
-                <View style={ggg.primaryHobby}>
-                  <Text style={ggg.primaryHobbyText}>Hobby 1</Text>
-                </View>
-                <View style={ggg.primaryHobby}>
-                  <Text style={ggg.primaryHobbyText}>Hobby 2</Text>
-                </View>
-                <View style={ggg.primaryHobby}>
-                  <Text style={ggg.primaryHobbyText}>Hobby 3</Text>
-                </View>
+                {hobbyButtonLabels.map((label, index) => (
+                  <View key={index} style={ggg.primaryHobby}>
+                    <Text style={ggg.primaryHobbyText}>{label}</Text>
+                  </View>
+                ))}
               </View>
             </View>
             {/* All Hobbies */}
@@ -255,6 +280,15 @@ const ggg = StyleSheet.create({
     backgroundColor: "#74A253",
     justifyContent: "center",
     alignItems: "center",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "transparent",
+    zIndex: 1,
   },
 });
 

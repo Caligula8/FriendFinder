@@ -11,6 +11,7 @@ import {
   Register3,
   WelcomeScreen,
   TestScreen,
+  TestScreen2,
   TestScreen3,
   SplashScreen,
   ChatsListScreen,
@@ -62,6 +63,7 @@ const App = () => {
           <Stack.Screen name="FullScreenPost" component={ExpandedPostScreen} />
           <Stack.Screen name="CreatePost" component={CreatePostScreen} />
           <Stack.Screen name="Test" component={TestScreen} />
+          <Stack.Screen name="Test2" component={TestScreen2} />
           <Stack.Screen name="Test3" component={TestScreen3} />
           <Stack.Screen
             name="SelectedPublicProfile"

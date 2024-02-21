@@ -20,11 +20,14 @@ const MyPublicProfileScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
 
-  const displayName = user.displayName || "Guest";
-  const userHobbies = user.hobbies || [];
-  const description = user?.description || "No description available";
-  const hobbyButtonLabels = [0, 1, 2].map(
-    (index) => user.primaryHobbies[index] || "Not Selected"
+  const displayName = user && user.displayName ? user.displayName : "Guest";
+  const userHobbies = user && user.hobbies ? user.hobbies : [];
+  const description =
+    user && user.description ? user.description : "No description available";
+  const hobbyButtonLabels = [0, 1, 2].map((index) =>
+    user && user.primaryHobbies
+      ? user.primaryHobbies[index] || "Not Selected"
+      : "Not Selected"
   );
 
   return (
