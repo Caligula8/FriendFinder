@@ -20,13 +20,6 @@ const MyPublicProfileScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
 
-  useEffect(() => {
-    console.log(
-      "MyPublicProfileScreen mounted or user changed:",
-      user.primaryHobbies
-    );
-  }, [user]);
-
   const displayName = user.displayName || "Guest";
   const userHobbies = user.hobbies || [];
   const description = user?.description || "No description available";

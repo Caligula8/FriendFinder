@@ -27,8 +27,9 @@ const MyProfileScreen = () => {
   const user = useSelector((state) => state.user.user);
   const [aboutMeText, setAboutMeText] = useState(user?.description || "");
   const [profileImage, setProfileImage] = useState(user?.photoURL || null);
-  const hobbyButtonLabels = [0, 1, 2].map(
-    (index) => user.primaryHobbies[index] || "Select"
+  const hobbyButtonLabels = Array.from(
+    { length: 3 },
+    (_, index) => user?.primaryHobbies?.[index] || "Select"
   );
   const [isHobbiesMenuOpen, setHobbiesMenuOpen] = useState(false);
 
@@ -200,7 +201,7 @@ const MyProfileScreen = () => {
         {/* Buttons */}
         <View style={ggg.buttonContainer}>
           <ContinueButton
-            onPress={handleSelectHobbies}
+            onPress={handleSelectHobbies} //need change this
             buttonText="Modify My Hobbies"
             transparency={0.7}
           />
