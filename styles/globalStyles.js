@@ -42,6 +42,10 @@ export const globalStyles = StyleSheet.create({
     top: 75,
     right: 82,
   },
+  hideStatusBarHeader: {
+    width: "100%",
+    height: 28,
+  },
   contentContainer: {
     flex: 1,
   },

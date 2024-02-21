@@ -1,9 +1,9 @@
 import React from "react";
 import {
   View,
+  ScrollView,
   Text,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -25,45 +25,42 @@ const BrowseCategoriesScreen = () => {
     "Category 8",
   ];
 
-  const renderCategory = ({ item }) => (
-    <View style={ggg.itemContainer}>
-      <HobbyCategory
-        category={item}
-        onPress={() => handleCategoryPress(item)}
-      />
-    </View>
-  );
-
   const handleCategoryPress = (category) => {
     navigation.navigate("Posts", { categoryName: category });
   };
+
   const handleSelectHobbies = () => {
-    //navigation.navigate("Register3");
+    // navigation.navigate("Register3");
   };
 
   return (
     <View style={globalStyles.pageContainer}>
-      {/* Header */}
-      <View style={globalStyles.header}>
-        <View style={globalStyles.titleContainer}>
-          <Text style={globalStyles.title}>Discover Categories</Text>
+      <View style={globalStyles.hideStatusBarHeader} />
+      <ScrollView>
+        {/* Header */}
+        <View style={ggg.headerContainer}>
+          <View style={ggg.titleContainer}>
+            <Text style={globalStyles.title}>Discover Categories</Text>
+          </View>
+          <TouchableOpacity
+            style={ggg.headerIconContainerRight}
+            onPress={handleSelectHobbies}
+          >
+            <MaterialCommunityIcons name="tune" size={32} color="black" />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={globalStyles.headerIconContainerRight}
-          onPress={handleSelectHobbies}
-        >
-          <MaterialCommunityIcons name="tune" size={32} color="black" />
-        </TouchableOpacity>
-      </View>
-      {/* Content */}
-      <FlatList
-        data={categories}
-        renderItem={renderCategory}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        contentContainerStyle={ggg.contentContainer}
-      />
-
+        {/* Content */}
+        <View style={ggg.contentContainer}>
+          {categories.map((category, index) => (
+            <View key={index.toString()} style={ggg.itemContainer}>
+              <HobbyCategory
+                category={category}
+                onPress={() => handleCategoryPress(category)}
+              />
+            </View>
+          ))}
+        </View>
+      </ScrollView>
       {/* Footer & Navbar */}
       <View style={globalStyles.footer}>
         <NavBar />
@@ -76,11 +73,28 @@ const ggg = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
     marginTop: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
   },
   itemContainer: {
-    flex: 1,
     alignItems: "center",
     marginBottom: 16,
+  },
+  headerContainer: {
+    width: "100%",
+    height: 82,
+  },
+  titleContainer: {
+    flexDirection: "column",
+    marginLeft: 24,
+    position: "absolute",
+    top: 47,
+  },
+  headerIconContainerRight: {
+    position: "absolute",
+    top: 47,
+    right: 28,
   },
 });
 
