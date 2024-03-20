@@ -12,11 +12,11 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import NavBar from "../components/Navbar";
-import ContinueButton from "../components/ContinueButton";
-import { globalStyles } from "../styles/globalStyles";
+import NavBar from "../../components/Navbar";
+import ContinueButton from "../../components/ContinueButton";
+import { globalStyles } from "../../styles/globalStyles";
 import { useSelector } from "react-redux";
-import { firebaseAuth, firestoreDB } from "../config/firebase.config";
+import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import {
   doc,
   addDoc,
@@ -25,7 +25,7 @@ import {
   collection,
   updateDoc,
 } from "firebase/firestore";
-import { firebaseStorage } from "../config/firebase.config";
+import { firebaseStorage } from "../../config/firebase.config";
 import { ref } from "firebase/storage";
 
 const CreatePostScreen = () => {

@@ -9,9 +9,9 @@ import React from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import NavBar from "../components/Navbar";
-import PostCard from "../components/PostCard";
-import { globalStyles } from "../styles/globalStyles";
+import NavBar from "../../components/Navbar";
+import PostCard from "../../components/PostCard";
+import { globalStyles } from "../../styles/globalStyles";
 
 const BrowsePostsScreen = () => {
   const navigation = useNavigation();

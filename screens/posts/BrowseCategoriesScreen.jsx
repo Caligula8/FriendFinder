@@ -8,9 +8,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import NavBar from "../components/Navbar";
-import { globalStyles } from "../styles/globalStyles";
-import HobbyCategory from "../components/HobbyCategory";
+import NavBar from "../../components/Navbar";
+import { globalStyles } from "../../styles/globalStyles";
+import HobbyCategory from "../../components/HobbyCategory";
 
 const BrowseCategoriesScreen = () => {
   const navigation = useNavigation();
@@ -30,7 +30,7 @@ const BrowseCategoriesScreen = () => {
   };
 
   const handleSelectHobbies = () => {
-    // navigation.navigate("Register3");
+    navigation.navigate("ReSelectHobbies");
   };
 
   return (

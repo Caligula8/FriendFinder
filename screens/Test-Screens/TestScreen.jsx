@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import NavBar from "../components/Navbar";
+import NavBar from "../../components/Navbar";
 import { collection, getDocs } from "firebase/firestore";
-import { firestoreDB } from "../config/firebase.config";
+import { firestoreDB } from "../../config/firebase.config";
 import { useSelector } from "react-redux";
-import SelectedPublicProfile from "./SelectedPublicProfile";
+import SelectedPublicProfile from "../SelectedPublicProfile";
 
 const TestScreen = () => {
   const navigation = useNavigation();

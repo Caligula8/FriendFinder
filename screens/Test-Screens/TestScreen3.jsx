@@ -8,10 +8,10 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import ThreeDotsMenu from "../components/ThreeDotsMenu";
-import NavBar from "../components/Navbar";
+import ThreeDotsMenu from "../../components/ThreeDotsMenu";
+import NavBar from "../../components/Navbar";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import SelectPrimaryHobbiesMenu from "../components/SelectPrimaryHobbiesMenu";
+import SelectPrimaryHobbiesMenu from "../../components/SelectPrimaryHobbiesMenu";
 
 const TestScreen3 = () => {
   const navigation = useNavigation();

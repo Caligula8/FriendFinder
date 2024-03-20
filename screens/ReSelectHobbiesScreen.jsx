@@ -34,7 +34,6 @@ const ReSelectHobbiesScreen = () => {
   useEffect(() => {
     const fetchUserDataAndCategories = async () => {
       try {
-        // Fetch the current user's UID
         const userUID = firebaseAuth.currentUser.uid;
         // Fetch user's current hobbies from profile document
         const userRef = doc(firestoreDB, "users", userUID);
@@ -43,7 +42,6 @@ const ReSelectHobbiesScreen = () => {
           const userData = userDoc.data();
           setSelectedHobbies(userData.hobbies || []);
         }
-
         // Fetch categories and their hobbies
         const categoriesCollectionRef = collection(firestoreDB, "categories");
         const querySnapshot = await getDocs(categoriesCollectionRef);
@@ -57,7 +55,6 @@ const ReSelectHobbiesScreen = () => {
         console.error("Error fetching user data and categories:", error);
       }
     };
-
     fetchUserDataAndCategories();
   }, []);
 
@@ -88,12 +85,10 @@ const ReSelectHobbiesScreen = () => {
         await updateDoc(userRef, data);
 
         const updatedUser = { ...user, hobbies: selectedHobbies };
-
-        // Update  user in the Redux store
+        // Update user in the Redux store
         dispatch({ type: "SET_USER", user: updatedUser });
 
-        navigation.replace("MyProfile");
-        //navigation.goBack();
+        navigation.goBack();
       } catch (error) {
         console.error(
           "Error updating user document (ReSelectHobbiesScreen): ",

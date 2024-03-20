@@ -12,9 +12,13 @@ import Accordion from "../../components/Accordion";
 import ContinueButton from "../../components/ContinueButton";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { firestoreDB, firebaseAuth } from "../../config/firebase.config";
+import { useSelector, useDispatch } from "react-redux";
 
 const Register3 = () => {
   const navigation = useNavigation();
+  const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
+
   const [openAccordionIndex, setOpenAccordionIndex] = useState(null);
   const [categories, setCategories] = useState([]);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -67,6 +71,9 @@ const Register3 = () => {
         };
 
         await updateDoc(userRef, data);
+        const updatedUser = { ...user, hobbies: selectedHobbies };
+        // Update user in the Redux store
+        dispatch({ type: "SET_USER", user: updatedUser });
         navigation.replace("Home");
       } catch (error) {
         console.error("Error updating user document (Register3): ", error);

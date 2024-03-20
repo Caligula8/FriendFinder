@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import NavBar from "../components/Navbar";
+import NavBar from "../../components/Navbar";
 import { collection, getDocs } from "firebase/firestore";
-import { firestoreDB } from "../config/firebase.config";
+import { firestoreDB } from "../../config/firebase.config";
 
 const TestScreen2 = () => {
   const [categories, setCategories] = useState([]);

@@ -12,10 +12,10 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import NavBar from "../components/Navbar";
-import MessagePromptModal from "../components/MessagePromptModal";
-import ThreeDotsMenu from "../components/ThreeDotsMenu";
-import { globalStyles } from "../styles/globalStyles";
+import NavBar from "../../components/Navbar";
+import MessagePromptModal from "../../components/MessagePromptModal";
+import ThreeDotsMenu from "../../components/ThreeDotsMenu";
+import { globalStyles } from "../../styles/globalStyles";
 
 const { height } = Dimensions.get("window");
 
