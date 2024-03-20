@@ -3,11 +3,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
   TextInput,
   TouchableWithoutFeedback,
   StyleSheet,
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const MessagePromptModal = ({
   isVisible,
@@ -16,98 +16,131 @@ const MessagePromptModal = ({
   recipientUsername,
 }) => {
   const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSend = () => {
+    if (message.trim() === "") {
+      // If the message is empty on send attempt
+      setErrorMessage("Message cannot be empty");
+      setTimeout(() => {
+        setErrorMessage("");
+      }, 2000);
+      return;
+    }
+
+    // Proceed with sending the message
     onSend({ recipient: recipientUsername, message });
     onClose();
   };
 
   useEffect(() => {
-    // Reset message state when the modal visibility changes
+    // Reset message state and error message when the modal visibility changes
     if (!isVisible) {
       setMessage("");
+      setErrorMessage("");
     }
   }, [isVisible]);
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isVisible}
-      onRequestClose={onClose}
-    >
+    isVisible && (
       <TouchableWithoutFeedback onPress={onClose}>
-        {/* captures taps on the entire screen */}
-        <View style={styles.modalBackdrop}>
+        <View style={styles.overlay}>
           <TouchableWithoutFeedback onPress={() => {}}>
-            {/* prevent taps inside the modal from triggering onClose*/}
             <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalText}>
-                  Send a Message to {recipientUsername}
-                </Text>
-                <TextInput
-                  style={styles.messageInput}
-                  placeholder="Type your message..."
-                  multiline
-                  value={message}
-                  onChangeText={(text) => setMessage(text)}
-                />
+              <Text style={styles.modalText}>
+                Send a Message to {recipientUsername}
+              </Text>
+              <View style={styles.inputAndSendContainer}>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.messageInput}
+                    placeholder="Type your message..."
+                    multiline
+                    value={message}
+                    onChangeText={(text) => setMessage(text)}
+                    placeholderTextColor="#8D8D8D"
+                  />
+                </View>
                 <TouchableOpacity
-                  style={styles.modalButton}
+                  style={styles.sendButton}
                   onPress={handleSend}
                 >
-                  <Text style={styles.modalButtonText}>Send</Text>
+                  <MaterialCommunityIcons
+                    name="send-circle-outline"
+                    size={32}
+                    color="white"
+                  />
                 </TouchableOpacity>
               </View>
+              {errorMessage !== "" && (
+                <Text style={styles.errorMessage}>{errorMessage}</Text>
+              )}
             </View>
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
-    </Modal>
+    )
   );
 };
 
 const styles = StyleSheet.create({
-  modalBackdrop: {
-    flex: 1,
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
   },
   modalContainer: {
-    width: "90%",
+    width: "80%",
     backgroundColor: "white",
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 8,
     borderRadius: 10,
     alignItems: "center",
   },
   modalContent: {
     width: "100%",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#000",
   },
   modalText: {
     fontSize: 18,
     marginBottom: 20,
   },
-  messageInput: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    width: "100%",
-  },
-  modalButton: {
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: "#e24e59",
+  inputAndSendContainer: {
+    flexDirection: "row",
     alignItems: "center",
+    marginBottom: 10,
   },
-  modalButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
+  inputContainer: {
+    flex: 1,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#FDDBDD",
+    backgroundColor: "white",
+    paddingHorizontal: 10,
+    shadowColor: "rgba(0, 0, 0, 0.3)",
+    elevation: 4,
+  },
+  messageInput: {
+    flexGrow: 1,
+    minHeight: 40,
+    maxHeight: 160,
+    paddingVertical: 8,
+    color: "black",
+  },
+  sendButton: {
+    marginLeft: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 40,
+    width: 40,
+    borderRadius: 8,
+    backgroundColor: "#e24e59",
+  },
+  errorMessage: {
+    color: "#8D8D8D",
   },
 });
 

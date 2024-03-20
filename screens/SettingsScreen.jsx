@@ -1,13 +1,36 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../components/Navbar";
 import { globalStyles } from "../styles/globalStyles";
 import { firebaseAuth } from "../config/firebase.config";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_USER_NULL } from "../context/actions/userActions";
+
+const SignOutConfirmation = ({ onCancel, onConfirm }) => (
+  <TouchableWithoutFeedback onPress={onCancel}>
+    <View style={ggg.modalContainer}>
+      <View style={ggg.modalContent}>
+        <Text style={ggg.modalText}>Are you sure you want to sign out?</Text>
+        <View style={ggg.modalButtons}>
+          <TouchableOpacity style={ggg.modalButton} onPress={onCancel}>
+            <Text style={ggg.modalButtonText}>No</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={ggg.modalButton} onPress={onConfirm}>
+            <Text style={ggg.modalButtonText}>Yes</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  </TouchableWithoutFeedback>
+);
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
@@ -27,169 +50,143 @@ const SettingsScreen = () => {
     await firebaseAuth.signOut().then(() => {
       dispatch(SET_USER_NULL());
       navigation.replace("Welcome");
-      //need to fix back button un-sign out
     });
     setSignOutModalVisible(false);
   };
 
   return (
-    <View style={globalStyles.pageContainer}>
-      {/* Header */}
-      <View style={globalStyles.header}>
-        <View style={globalStyles.backButtonContainer}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back-outline" size={32} color="black" />
-          </TouchableOpacity>
-        </View>
+    <TouchableWithoutFeedback onPress={() => setSignOutModalVisible(false)}>
+      <View style={globalStyles.pageContainer}>
+        <View style={globalStyles.header}>
+          <View style={globalStyles.backButtonContainer}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back-outline" size={32} color="black" />
+            </TouchableOpacity>
+          </View>
 
-        <View style={globalStyles.titleContainer}>
-          <Text style={globalStyles.title}>Settings</Text>
-        </View>
-      </View>
-
-      {/* Body */}
-      <View style={globalStyles.contentContainer}>
-        {/* Settings Items */}
-        <TouchableOpacity
-          style={ggg.settingsItem}
-          onPress={() => navigateToPage("AccountManagement")}
-        >
-          <Ionicons
-            name="person-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
-          <Text style={ggg.settingsText}>Account Management</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={ggg.settingsItem}
-          onPress={() => navigateToPage("Test")}
-        >
-          <Ionicons
-            name="notifications-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
-          <Text style={ggg.settingsText}>Notifications</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={ggg.settingsItem}
-          onPress={() => navigateToPage("PreviousPosts")}
-        >
-          <Ionicons
-            name="document-text-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
-          <Text style={ggg.settingsText}>Your Previous Posts</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={ggg.settingsItem}
-          onPress={() => navigateToPage("BlockedList")}
-        >
-          <Ionicons
-            name="ban-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
-          <Text style={ggg.settingsText}>Manage Blocked List</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={ggg.settingsItem}
-          onPress={() => navigateToPage("Test3")}
-        >
-          <Ionicons
-            name="file-tray-full-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
-          <Text style={ggg.settingsText}>Terms of Service</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={ggg.settingsItem}
-          onPress={() => navigateToPage("Test2")}
-        >
-          <Ionicons
-            name="lock-closed-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
-          <Text style={ggg.settingsText}>Privacy Policy</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={ggg.settingsItem}
-          onPress={() => navigateToPage("ContactSupport")}
-        >
-          <Ionicons
-            name="help-buoy-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
-          <Text style={ggg.settingsText}>Contact Support</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={ggg.settingsItem}
-          onPress={() => navigateToPage("SignOut")}
-        >
-          <Ionicons
-            name="log-out-outline"
-            size={24}
-            color="black"
-            style={ggg.settingsIcon}
-          />
-          <Text style={ggg.settingsText}>Sign Out</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Sign Out Confirmation Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isSignOutModalVisible}
-        onRequestClose={() => setSignOutModalVisible(false)}
-      >
-        <View style={ggg.modalContainer}>
-          <View style={ggg.modalContent}>
-            <Text style={ggg.modalText}>
-              Are you sure you want to sign out?
-            </Text>
-            <View style={ggg.modalButtons}>
-              <TouchableOpacity
-                style={ggg.modalButton}
-                onPress={() => setSignOutModalVisible(false)}
-              >
-                <Text style={ggg.modalButtonText}>No</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={ggg.modalButton}
-                onPress={() => handleSignOut()}
-              >
-                <Text style={ggg.modalButtonText}>Yes</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={globalStyles.titleContainer}>
+            <Text style={globalStyles.title}>Settings</Text>
           </View>
         </View>
-      </Modal>
 
-      {/* Footer & Navbar */}
-      <View style={globalStyles.footer}>
-        <NavBar />
+        <View style={globalStyles.contentContainer}>
+          <TouchableOpacity
+            style={ggg.settingsItem}
+            onPress={() => navigateToPage("AccountManagement")}
+          >
+            <Ionicons
+              name="person-outline"
+              size={24}
+              color="black"
+              style={ggg.settingsIcon}
+            />
+            <Text style={ggg.settingsText}>Account Management</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={ggg.settingsItem}
+            onPress={() => navigateToPage("Test")}
+          >
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color="black"
+              style={ggg.settingsIcon}
+            />
+            <Text style={ggg.settingsText}>Notifications</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={ggg.settingsItem}
+            onPress={() => navigateToPage("PreviousPosts")}
+          >
+            <Ionicons
+              name="document-text-outline"
+              size={24}
+              color="black"
+              style={ggg.settingsIcon}
+            />
+            <Text style={ggg.settingsText}>Your Previous Posts</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={ggg.settingsItem}
+            onPress={() => navigateToPage("BlockedList")}
+          >
+            <Ionicons
+              name="ban-outline"
+              size={24}
+              color="black"
+              style={ggg.settingsIcon}
+            />
+            <Text style={ggg.settingsText}>Manage Blocked List</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={ggg.settingsItem}
+            onPress={() => navigateToPage("Test3")}
+          >
+            <Ionicons
+              name="file-tray-full-outline"
+              size={24}
+              color="black"
+              style={ggg.settingsIcon}
+            />
+            <Text style={ggg.settingsText}>Terms of Service</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={ggg.settingsItem}
+            onPress={() => navigateToPage("Test2")}
+          >
+            <Ionicons
+              name="lock-closed-outline"
+              size={24}
+              color="black"
+              style={ggg.settingsIcon}
+            />
+            <Text style={ggg.settingsText}>Privacy Policy</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={ggg.settingsItem}
+            onPress={() => navigateToPage("ContactSupport")}
+          >
+            <Ionicons
+              name="help-buoy-outline"
+              size={24}
+              color="black"
+              style={ggg.settingsIcon}
+            />
+            <Text style={ggg.settingsText}>Contact Support</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={ggg.settingsItem}
+            onPress={() => navigateToPage("SignOut")}
+          >
+            <Ionicons
+              name="log-out-outline"
+              size={24}
+              color="black"
+              style={ggg.settingsIcon}
+            />
+            <Text style={ggg.settingsText}>Sign Out</Text>
+          </TouchableOpacity>
+
+          {isSignOutModalVisible && (
+            <SignOutConfirmation
+              onCancel={() => setSignOutModalVisible(false)}
+              onConfirm={handleSignOut}
+            />
+          )}
+        </View>
+
+        <View style={globalStyles.footer}>
+          <NavBar />
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -208,14 +205,18 @@ const ggg = StyleSheet.create({
     fontSize: 18,
   },
   modalContainer: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1,
+    marginTop: -globalStyles.header.height,
   },
   modalContent: {
+    width: "90%",
     backgroundColor: "white",
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 8,
     borderRadius: 10,
     alignItems: "center",
   },

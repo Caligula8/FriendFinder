@@ -47,8 +47,12 @@ const MyProfileScreen = () => {
     navigation.navigate("Settings");
   };
 
-  const handleSelectHobbies = () => {
+  const handleSelectPrimaryHobbies = () => {
     setHobbiesMenuOpen(true);
+  };
+
+  const handleReSelectHobbies = () => {
+    navigation.navigate("ReSelectHobbies");
   };
 
   const handleViewPublicProfile = () => {
@@ -190,7 +194,7 @@ const MyProfileScreen = () => {
               <TouchableOpacity
                 key={index}
                 style={ggg.hobbiesButton}
-                onPress={handleSelectHobbies}
+                onPress={handleSelectPrimaryHobbies}
               >
                 <Text style={ggg.hobbiesButtonText}>{label}</Text>
               </TouchableOpacity>
@@ -201,7 +205,7 @@ const MyProfileScreen = () => {
         {/* Buttons */}
         <View style={ggg.buttonContainer}>
           <ContinueButton
-            onPress={handleSelectHobbies} //need change this
+            onPress={handleReSelectHobbies} //need change this
             buttonText="Modify My Hobbies"
             transparency={0.7}
           />

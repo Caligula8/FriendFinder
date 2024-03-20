@@ -8,59 +8,23 @@ const TestScreen2 = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const fetchHobbies = async () => {
+    const fetchCategoriesAndHobbies = async () => {
       try {
-        const hobbiesCollection = collection(firestoreDB, "hobbies");
-        const hobbiesSnapshot = await getDocs(hobbiesCollection);
+        const categoriesCollectionRef = collection(firestoreDB, "categories");
+        const querySnapshot = await getDocs(categoriesCollectionRef);
 
-        // Organize hobbies by category
-        const categoriesData = {};
+        const categoriesList = querySnapshot.docs.map((doc) => ({
+          name: doc.id,
+          hobbies: doc.data().hobbies.map((hobby) => ({ name: hobby })),
+        }));
 
-        hobbiesSnapshot.forEach((hobbyDoc) => {
-          const hobbyData = hobbyDoc.data();
-          const categoryName = hobbyData.category;
-
-          if (!categoriesData[categoryName]) {
-            categoriesData[categoryName] = {
-              name: categoryName,
-              hobbies: [],
-            };
-          }
-
-          categoriesData[categoryName].hobbies.push({
-            id: hobbyDoc.id,
-            name: hobbyDoc.id,
-          });
-        });
-
-        // Define desired category order
-        const desiredOrder = [
-          "Sports and Fitness",
-          "Technology and Gaming",
-          "Nature and Science",
-          "Music and Performance",
-          "Crafting Hobbies",
-          "Collecting Hobbies",
-          "Culinary Hobbies",
-          "General Hobbies",
-        ];
-
-        // Sort categories based on the defined order
-        const sortedCategories = desiredOrder.map(
-          (categoryName) => categoriesData[categoryName]
-        );
-
-        // Convert object to array
-        const categoriesArray = sortedCategories.filter(Boolean);
-
-        setCategories(categoriesArray);
+        setCategories(categoriesList);
       } catch (error) {
-        console.error("Error fetching hobbies:", error);
+        console.error("Error fetching categories and hobbies:", error);
       }
     };
 
-    // Call the function
-    fetchHobbies();
+    fetchCategoriesAndHobbies();
   }, []);
 
   return (
@@ -72,8 +36,11 @@ const TestScreen2 = () => {
               <Text style={styles.categoryName}>{category.name}</Text>
               {category.hobbies && category.hobbies.length > 0 && (
                 <View style={styles.hobbiesContainer}>
-                  {category.hobbies.map((hobby) => (
-                    <Text key={hobby.id} style={styles.hobbyName}>
+                  {category.hobbies.map((hobby, index) => (
+                    <Text
+                      key={`${category.name}-${index}`}
+                      style={styles.hobbyName}
+                    >
                       {hobby.name}
                     </Text>
                   ))}
@@ -83,8 +50,6 @@ const TestScreen2 = () => {
           ))}
         </View>
       </ScrollView>
-
-      {/* Footer & Navbar */}
       <View style={styles.footer}>
         <NavBar />
       </View>

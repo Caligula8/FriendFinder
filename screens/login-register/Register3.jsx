@@ -10,7 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import Accordion from "../../components/Accordion";
 import ContinueButton from "../../components/ContinueButton";
-import { collection, doc, updateDoc, getDocs } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { firestoreDB, firebaseAuth } from "../../config/firebase.config";
 
 const Register3 = () => {
@@ -21,6 +21,26 @@ const Register3 = () => {
   const isSelectionValid =
     selectedHobbies.length >= 5 && selectedHobbies.length <= 20;
   const [isValidColor, setIsValidColor] = useState("#8D8D8D");
+
+  useEffect(() => {
+    const fetchCategoriesAndHobbies = async () => {
+      try {
+        const categoriesCollectionRef = collection(firestoreDB, "categories");
+        const querySnapshot = await getDocs(categoriesCollectionRef);
+
+        const categoriesList = querySnapshot.docs.map((doc) => ({
+          name: doc.id,
+          hobbies: doc.data().hobbies.map((hobby) => ({ name: hobby })),
+        }));
+
+        setCategories(categoriesList);
+      } catch (error) {
+        console.error("Error fetching categories and hobbies:", error);
+      }
+    };
+
+    fetchCategoriesAndHobbies();
+  }, []);
 
   const handleAccordionPress = (index) => {
     setOpenAccordionIndex((prevIndex) => (prevIndex === index ? null : index));
@@ -52,7 +72,6 @@ const Register3 = () => {
         console.error("Error updating user document (Register3): ", error);
       }
     } else {
-      // Change the instructions color to red for 3 seconds
       setIsValidColor("#e24e59");
       setTimeout(() => {
         setIsValidColor("#8D8D8D");
@@ -60,77 +79,18 @@ const Register3 = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchHobbies = async () => {
-      try {
-        const hobbiesCollection = collection(firestoreDB, "hobbies");
-        const hobbiesSnapshot = await getDocs(hobbiesCollection);
-
-        // Organize hobbies by category
-        const categoriesData = {};
-
-        hobbiesSnapshot.forEach((hobbyDoc) => {
-          const hobbyData = hobbyDoc.data();
-          const categoryName = hobbyData.category;
-
-          if (!categoriesData[categoryName]) {
-            categoriesData[categoryName] = {
-              name: categoryName,
-              hobbies: [],
-            };
-          }
-
-          categoriesData[categoryName].hobbies.push({
-            id: hobbyDoc.id,
-            name: hobbyDoc.id,
-          });
-        });
-
-        // Define desired category order
-        const desiredOrder = [
-          "Sports and Fitness",
-          "Technology and Gaming",
-          "Nature and Science",
-          "Music and Performance",
-          "Crafting Hobbies",
-          "Collecting Hobbies",
-          "Culinary Hobbies",
-          "General Hobbies",
-        ];
-
-        // Sort categories based on the defined order
-        const sortedCategories = desiredOrder.map(
-          (categoryName) => categoriesData[categoryName]
-        );
-
-        // Convert object to array
-        const categoriesArray = sortedCategories.filter(Boolean);
-
-        console.log("Completed List:", categoriesData);
-        setCategories(categoriesArray);
-      } catch (error) {
-        console.error("Error fetching hobbies:", error);
-      }
-    };
-
-    fetchHobbies();
-  }, []);
-
   return (
     <View style={styles.container}>
       <ScrollView>
-        {/* Back Button */}
         <View style={styles.backButtonContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate("Register2")}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back-outline" size={32} color="black" />
           </TouchableOpacity>
         </View>
-        {/* Header */}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>I Am Interested In...</Text>
           <Text style={styles.stepText}>Step 3/3</Text>
         </View>
-        {/* Accordions */}
         <View style={styles.accordionContainer}>
           {categories.map((data, index) => (
             <Accordion
@@ -147,17 +107,14 @@ const Register3 = () => {
           ))}
         </View>
       </ScrollView>
-
-      {/* Footer & Continue Button */}
       <View style={styles.footer}>
         <View style={styles.buttonContainer}>
           <ContinueButton onPress={handleContinue} buttonText="Continue" />
         </View>
-        {/* Selection Counter and Message */}
         <View style={styles.selectionInfo}>
           <Text style={{ color: isValidColor }}>
             {isSelectionValid
-              ? `Selected ${selectedHobbies.length} out of 20`
+              ? `${selectedHobbies.length} Hobbies Selected`
               : "Please select between 5 and 20 hobbies"}
           </Text>
         </View>

@@ -88,6 +88,13 @@ const SelectedPublicProfile = ({ route }) => {
     setMenuOpen(false);
   };
 
+  const handleSend = (messageData) => {
+    // Add logic for sending the message
+    console.log("Sending message to:", messageData.recipient);
+    console.log("Message content:", messageData.message);
+    setModalVisible(false);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={onBackdropPress}>
       <View style={globalStyles.pageContainer}>
@@ -169,12 +176,8 @@ const SelectedPublicProfile = ({ route }) => {
         <MessagePromptModal
           isVisible={isModalVisible}
           onClose={toggleModal}
-          onSend={(messageData) => {
-            // Add logic for sending the message
-            console.log("Sending message to:", messageData.recipient);
-            console.log("Message content:", messageData.message);
-          }}
-          recipientUsername="Username" // Replace with recipient
+          onSend={handleSend}
+          recipientUsername={displayName}
         />
 
         {/* Footer & Navbar */}
