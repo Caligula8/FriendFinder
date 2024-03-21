@@ -8,15 +8,17 @@ import {
   TextInput,
   Image,
   Alert,
+  TouchableWithoutFeedback,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import NavBar from "../../components/Navbar";
 import ContinueButton from "../../components/ContinueButton";
+import SelectTagsMenu from "../../components/SelectTagsMenu";
 import { globalStyles } from "../../styles/globalStyles";
 import { useSelector } from "react-redux";
-import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
+import { firestoreDB, firebaseStorage } from "../../config/firebase.config";
 import {
   doc,
   addDoc,
@@ -24,9 +26,9 @@ import {
   Timestamp,
   collection,
   updateDoc,
+  runTransaction,
 } from "firebase/firestore";
-import { firebaseStorage } from "../../config/firebase.config";
-import { ref } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const CreatePostScreen = () => {
   const navigation = useNavigation();
@@ -35,6 +37,10 @@ const CreatePostScreen = () => {
   const [postBody, setPostBody] = useState("");
   const [images, setImages] = useState([]);
   const [showWarning, setShowWarning] = useState(false);
+  const [isSelectTagsMenuVisible, setIsSelectTagsMenuVisible] = useState(false);
+  const route = useRoute();
+  const categoryName = route.params?.categoryName;
+  const [selectedTags, setSelectedTags] = useState([categoryName]);
 
   // Request permissions
   const requestMediaLibraryPermission = async () => {
@@ -114,46 +120,82 @@ const CreatePostScreen = () => {
     setImages(newImages);
   };
 
-  const time = Timestamp.now();
-  //const time = Timestamp.now().getSeconds();
-  const userID = firebaseAuth.currentUser.uid;
-  let fileCounter = 0;
-  const storageRefArr = [];
-  // const storageRef = ref(firebaseStorage);
-
-  const handleAttachImages11111111111 = () => {
-    // make file path
-    const path = userID + "/" + time + "_" + fileCounter;
-    fileCounter = fileCounter + 1;
-    // make storage reference
-    const storageRef = ref(firebaseStorage, path);
-    // storageRefArr.push({ file: ...uploadedFile, ref: ...storageRef });
-    //navigation.navigate("Register3");
-  };
-
   const handleSelectTags = () => {
-    // Handle tag selection
+    setIsSelectTagsMenuVisible(true);
   };
 
   const handlePost = async () => {
-    const userRef = doc(firestoreDB, "users", userID);
+    // Extract the current timestamp to use in the post summary prefix
+    const FireBaseTimeStamp = Timestamp.now();
+    const timestamp = FireBaseTimeStamp.toDate().toISOString();
+    const unixTimestamp = Math.floor(Date.now() / 1000).toString();
+    const postSummaryPrefix = `${unixTimestamp}_${user._id}`;
+    const userDocRef = doc(firestoreDB, "users", user._id);
 
-    const postRef = await addDoc(collection(firestoreDB, "posts"), {
-      content: postBody,
-      title: postTitle,
-      timestamp: Timestamp.now(),
-      user: userID,
-    });
+    try {
+      // Upload each selected image to Firebase Storage and get their download URLs
+      const imageUploadPromises = images.map(async (image, index) => {
+        const imageUri = image.uri;
+        const fileExtension = imageUri.split(".").pop(); // Extract file extension
+        const imageName = `${postSummaryPrefix}_${index}.${fileExtension}`;
+        const storageRef = ref(firebaseStorage, `post_images/${imageName}`);
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+        await uploadBytes(storageRef, blob); // Upload image to Firebase Storage
+        const downloadURL = await getDownloadURL(storageRef); // Get URL for uploaded image
+        return downloadURL; // Return the download URL for the uploaded image
+      });
 
-    // add code to update in posts field in the relevant docs in collection "hobbies"
-    // who wrote this above comment me or you?
+      const imageUrls = await Promise.all(imageUploadPromises); // Wait for all images to be uploaded and URLs to be fetched
 
-    await updateDoc(userRef, {
-      posts: arrayUnion(postRef.id),
-    });
+      // Iterate through the selected tags, creating or updating posts accordingly
+      for (const hobby of selectedTags) {
+        const hobbyRef = doc(firestoreDB, "posts", hobby);
+        const contentCollectionRef = collection(hobbyRef, "content");
+        const postDocRef = await addDoc(contentCollectionRef, {
+          author: user.displayName,
+          authorID: user._id,
+          content: postBody,
+          tags: selectedTags,
+          title: postTitle,
+          timestamp: timestamp,
+          images: imageUrls, // Include the array of image URLs in the post document
+        });
 
-    //navigation.navigate("Register3");
+        //Post Summary
+        const postSummary = {
+          reference: postDocRef,
+          timestamp: timestamp,
+          title: postTitle,
+        };
+
+        // Construct the post summary object explicitly for transaction updates
+        const updateObject = {};
+        updateObject[postSummaryPrefix] = postSummary;
+
+        await runTransaction(firestoreDB, async (transaction) => {
+          const hobbyDoc = await transaction.get(hobbyRef);
+          if (!hobbyDoc.exists()) {
+            transaction.set(hobbyRef, { [postSummaryPrefix]: postSummary });
+          } else {
+            transaction.update(hobbyRef, updateObject);
+          }
+        });
+
+        // Update the user's document with the new post ID
+        await updateDoc(userDocRef, {
+          posts: arrayUnion(postDocRef.path),
+        });
+      }
+
+      console.log("Post creation and updates were successful.");
+      navigation.goBack(); // Navigate back after successful post creation
+    } catch (error) {
+      console.error("Error creating post or updating documents:", error);
+      // Need to handle error properly with error message
+    }
   };
+
   return (
     <View style={globalStyles.pageContainer}>
       {/* Header */}
@@ -221,6 +263,30 @@ const CreatePostScreen = () => {
       <View style={globalStyles.footer}>
         <NavBar />
       </View>
+
+      {/* Transparent Overlay */}
+      {isSelectTagsMenuVisible && (
+        <TouchableWithoutFeedback
+          onPressOut={() => setIsSelectTagsMenuVisible(false)}
+        >
+          <View style={ggg.overlay}>
+            {/* SelectTagsMenu */}
+            <View style={ggg.menuContainer}>
+              <SelectTagsMenu
+                isVisible={isSelectTagsMenuVisible}
+                onClose={() => setIsSelectTagsMenuVisible(false)}
+                onTagsSelected={(tags) => {
+                  setSelectedTags(tags);
+                  setIsSelectTagsMenuVisible(false);
+                }}
+                userHobbies={user.hobbies || []}
+                initialSelectedTags={selectedTags}
+                categoryName={categoryName}
+              />
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      )}
     </View>
   );
 };
@@ -229,6 +295,17 @@ const ggg = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
     padding: 12,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+    zIndex: 1,
+  },
+  menuContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
   },
   buttonContainer: {
     flex: 1,

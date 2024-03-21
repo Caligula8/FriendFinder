@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -5,27 +6,58 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import React from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import NavBar from "../../components/Navbar";
 import PostCard from "../../components/PostCard";
 import { globalStyles } from "../../styles/globalStyles";
+import { doc, onSnapshot } from "firebase/firestore";
+import { firestoreDB } from "../../config/firebase.config";
 
 const BrowsePostsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const categoryName = route.params?.categoryName || "Default Category";
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const categoryRef = doc(firestoreDB, "posts", categoryName);
+
+    // Listener setup
+    const unsubscribe = onSnapshot(
+      categoryRef,
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const postSummaries = Object.entries(docSnapshot.data()).map(
+            ([key, value]) => ({
+              id: key,
+              ...value,
+            })
+          );
+
+          // Sort postSummaries by timestamp
+          postSummaries.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          );
+          setPosts(postSummaries);
+        } else {
+          console.log("No such document");
+        }
+      },
+      (error) => {
+        console.error("Error listening to post summaries: ", error);
+      }
+    );
+
+    // Cleanup function unsubscribe on component unmount
+    return () => unsubscribe();
+  }, [categoryName]);
 
   const handleSearch = () => {
     //navigation.navigate("Register3");
   };
   const handleCreatePost = () => {
-    navigation.navigate("CreatePost");
-  };
-  const handleSelectedPost = () => {
-    navigation.navigate("FullScreenPost");
+    navigation.navigate("CreatePost", { categoryName });
   };
 
   return (
@@ -60,19 +92,22 @@ const BrowsePostsScreen = () => {
       </View>
 
       <ScrollView style={ggg.contentContainer}>
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
+        {posts.map((postSummary) => {
+          const postId = postSummary.reference?.id; // Use post ID from DocumentReference object/path
+          return (
+            <PostCard
+              key={postId}
+              title={postSummary.title}
+              timestamp={postSummary.timestamp}
+              onPress={() =>
+                navigation.navigate("FullScreenPost", {
+                  postId: postId,
+                  categoryName: categoryName,
+                })
+              }
+            />
+          );
+        })}
       </ScrollView>
 
       {/* Footer & Navbar */}
@@ -87,12 +122,6 @@ const ggg = StyleSheet.create({
   contentContainer: {
     width: "100%",
     marginTop: 36,
-  },
-  pageBodyContainer: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
   },
 });
 

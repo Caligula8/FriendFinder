@@ -2,22 +2,37 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 
-const PostCard = () => {
+const formatDate = (timestamp) => {
+  const date = new Date(timestamp);
+  const month = date.getMonth() + 1; // +1 because getMonth() returns 0 for January
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const currentYear = new Date().getFullYear();
+
+  // Format the year as yy
+  const yearFormatted = year.toString().substr(-2);
+
+  // Include the year in the format only if it's not the current year
+  if (year === currentYear) {
+    return `${month}/${day}`;
+  } else {
+    return `${month}/${day}/${yearFormatted}`;
+  }
+};
+
+const PostCard = ({ title, timestamp, onPress }) => {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity
-      style={ggg.postCardContainer}
-      onPress={() => navigation.navigate("FullScreenPost")}
-    >
+    <TouchableOpacity style={ggg.postCardContainer} onPress={onPress}>
       {/* Content */}
       <View style={ggg.postCardTextContent}>
         <Text style={ggg.postCardTitle} numberOfLines={1} ellipsizeMode="tail">
-          The quick brown fox jumps over the lazy dog
+          {title}
         </Text>
       </View>
 
       {/* Time Text */}
-      <Text style={ggg.postCardTimeStampText}>10/20/23</Text>
+      <Text style={ggg.postCardTimeStampText}>{formatDate(timestamp)}</Text>
     </TouchableOpacity>
   );
 };

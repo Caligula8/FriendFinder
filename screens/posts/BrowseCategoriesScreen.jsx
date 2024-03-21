@@ -11,19 +11,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NavBar from "../../components/Navbar";
 import { globalStyles } from "../../styles/globalStyles";
 import HobbyCategory from "../../components/HobbyCategory";
+import { useSelector } from "react-redux";
 
 const BrowseCategoriesScreen = () => {
   const navigation = useNavigation();
-  const categories = [
-    "Category 1",
-    "Category 2",
-    "Category 3",
-    "Category 4",
-    "Category 5",
-    "Category 6",
-    "Category 7",
-    "Category 8",
-  ];
+  const categories = useSelector((state) => state.user.user.hobbies) || [];
 
   const handleCategoryPress = (category) => {
     navigation.navigate("Posts", { categoryName: category });

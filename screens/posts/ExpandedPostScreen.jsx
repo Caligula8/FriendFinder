@@ -1,5 +1,4 @@
-// ExpandedPostScreen.js
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,21 +9,54 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import NavBar from "../../components/Navbar";
 import MessagePromptModal from "../../components/MessagePromptModal";
 import ThreeDotsMenu from "../../components/ThreeDotsMenu";
 import { globalStyles } from "../../styles/globalStyles";
+import { doc, getDoc } from "firebase/firestore";
+import { firestoreDB } from "../../config/firebase.config";
 
 const { height } = Dimensions.get("window");
 
 const ExpandedPostScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const postRefPath = route.params?.postRefPath;
+  const { postId, categoryName } = route.params;
+  const [post, setPost] = useState(null);
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [iconLayout, setIconLayout] = useState(null);
   const iconRef = useRef(null);
+
+  useEffect(() => {
+    const fetchPostDetails = async () => {
+      if (!postId || !categoryName) {
+        console.error("Post ID or Category Name is missing");
+        return;
+      }
+
+      const postRefPath = `posts/${categoryName}/content/${postId}`;
+
+      try {
+        const postRef = doc(firestoreDB, postRefPath);
+        const docSnapshot = await getDoc(postRef);
+        if (docSnapshot.exists()) {
+          //console.log("Fetched post data:", docSnapshot.data());
+          setPost(docSnapshot.data());
+        } else {
+          console.log(`No post found at path: ${postRefPath}`);
+        }
+      } catch (error) {
+        console.error("Error fetching post details:", error);
+      }
+    };
+
+    fetchPostDetails();
+  }, [postId, categoryName]);
 
   const handleBlockUser = () => {
     console.log("Blocking user...");
@@ -35,7 +67,12 @@ const ExpandedPostScreen = () => {
   };
 
   const handleViewProfile = () => {
-    console.log("Viewing user...");
+    if (post && post.authorID) {
+      const authorUID = post.authorID.id;
+      navigation.navigate("SelectedPublicProfile", { userID: authorUID });
+    } else {
+      console.error("Author ID is missing or invalid");
+    }
   };
 
   const handleDeletePost = () => {
@@ -71,22 +108,6 @@ const ExpandedPostScreen = () => {
   const closeMenu = () => {
     setMenuOpen(false);
   };
-
-  // Dummy image data
-  const images = [
-    {
-      id: "1",
-      uri: "https://cdn.elebase.io/dbcc75a2-4b9f-4a0e-8e4b-cfa273624e10/48d2fdcb-4240-45fb-a5ec-5904c6a79e3a-vtmafaafa49c8ff135ec.jpg",
-    },
-    {
-      id: "2",
-      uri: "https://townsquare.media/site/698/files/2023/05/attachment-RS47844_GettyImages-1090819944-scr-2.jpg?w=980&q=75",
-    },
-    {
-      id: "3",
-      uri: "https://dianeatwood.com/wp-content/uploads/2017/07/11903872_10153608145004489_4489792579975984556_n.jpg",
-    },
-  ];
 
   return (
     <View style={globalStyles.pageContainer}>
@@ -128,47 +149,43 @@ const ExpandedPostScreen = () => {
         </View>
         {/* Content */}
         <View style={ggg.subContentContainer}>
-          {/* Title */}
           <View style={ggg.postElementContainer}>
             <Text style={ggg.subTitle}>Title</Text>
-            <Text style={ggg.text}>The five boxing wizards jump quickly</Text>
+            {post?.title && <Text style={ggg.text}>{post.title}</Text>}
           </View>
-          {/* Text Body */}
+
           <View style={ggg.postElementContainer}>
             <Text style={ggg.subTitle}>Body</Text>
-            <Text style={ggg.text}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </Text>
+            {post?.content && <Text style={ggg.text}>{post.content}</Text>}
           </View>
-          {/* Images */}
-          <View style={ggg.postElementContainer}>
-            <View style={ggg.postImagesContainer}>
-              {images.map((item) => (
-                <Image
-                  key={item.id}
-                  source={{ uri: item.uri }}
-                  style={ggg.image}
-                  resizeMode="cover"
-                />
-              ))}
+
+          {post?.images?.length > 0 && (
+            <View style={ggg.postElementContainer}>
+              <Text style={ggg.subTitle}>Images</Text>
+              <View style={ggg.postImagesContainer}>
+                {post.images.map((imageUrl, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: imageUrl }} // Ensure this is set correctly
+                    style={ggg.image}
+                    resizeMode="cover"
+                  />
+                ))}
+              </View>
             </View>
-          </View>
-          {/* Author */}
+          )}
+
           <View style={ggg.postElementContainer}>
             <Text style={ggg.subTitle}>Author</Text>
-            <Text style={ggg.text}>Somebody</Text>
+            {post?.author && <Text style={ggg.text}>{post.author}</Text>}
           </View>
-          {/* Tags */}
-          <View style={ggg.postElementContainer}>
-            <Text style={ggg.subTitle}>Tags</Text>
-            <Text style={ggg.text}>Hiking, Rock Climbing</Text>
-          </View>
+
+          {post?.tags?.length > 0 && (
+            <View style={ggg.postElementContainer}>
+              <Text style={ggg.subTitle}>Tags</Text>
+              <Text style={ggg.text}>{post.tags.join(", ")}</Text>
+            </View>
+          )}
         </View>
         <View style={ggg.postFooter} />
       </ScrollView>
@@ -183,11 +200,11 @@ const ExpandedPostScreen = () => {
         isVisible={isModalVisible}
         onClose={toggleModal}
         onSend={(messageData) => {
-          // Add logic for sending the message
+          // Add logic for sending message
           console.log("Sending message to:", messageData.recipient);
           console.log("Message content:", messageData.message);
         }}
-        recipientUsername="Username" // Replace with recipient
+        recipientUsername={post?.author || "This User"}
       />
 
       {/* Footer & Navbar */}
