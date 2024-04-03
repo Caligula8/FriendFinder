@@ -9,16 +9,7 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { firestoreDB } from "../config/firebase.config";
-import {
-  collection,
-  query,
-  where,
-  getDoc,
-  getDocs,
-  setDoc,
-  doc,
-  writeBatch,
-} from "firebase/firestore";
+import { getDoc, doc, writeBatch } from "firebase/firestore";
 
 const MessagePromptModal = ({
   isVisible,
@@ -112,6 +103,7 @@ const MessagePromptModal = ({
         lastSenderID: senderID,
         lastTimestamp: unixTimestamp,
         otherMemberName: recipientUsername,
+        otherMemberID: recipientID,
         otherMemberRef: recipientChatsRef,
       };
 
@@ -121,6 +113,7 @@ const MessagePromptModal = ({
         lastSenderID: senderID,
         lastTimestamp: unixTimestamp,
         otherMemberName: senderName,
+        otherMemberID: senderID,
         otherMemberRef: senderChatsRef,
       };
 
@@ -140,12 +133,13 @@ const MessagePromptModal = ({
       // Update the user_chats document for both the sender and recipient
       batch.set(
         senderChatsRef,
-        { [recipientID]: senderChatMetadata },
+        { [chatroomDocId]: senderChatMetadata },
         { merge: true }
       );
+
       batch.set(
         recipientChatsRef,
-        { [senderID]: recipientChatMetadata },
+        { [chatroomDocId]: recipientChatMetadata },
         { merge: true }
       );
 
