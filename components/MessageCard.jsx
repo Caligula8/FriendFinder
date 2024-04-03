@@ -42,11 +42,25 @@ const getTimeElapsed = (timestamp) => {
   }
 };
 
-const MessageCard = ({ lastMessageContent, timestamp, otherUser }) => {
+const MessageCard = ({
+  chatroomId,
+  lastMessageContent,
+  timestamp,
+  otherUser,
+}) => {
+  const navigation = useNavigation();
   const elapsed = getTimeElapsed(timestamp);
 
+  const handlePress = () => {
+    navigation.navigate("ChatDialogueScreen", {
+      chatroomId: chatroomId,
+      otherMemberID: otherUser.id,
+      otherMemberName: otherUser.displayName,
+    });
+  };
+
   return (
-    <TouchableOpacity style={ggg.messageCardContainer}>
+    <TouchableOpacity style={ggg.messageCardContainer} onPress={handlePress}>
       {/* Profile Picture */}
       <View style={ggg.messageCardProfileImageContainer}>
         {otherUser.photoURL ? (

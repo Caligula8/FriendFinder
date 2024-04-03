@@ -58,9 +58,9 @@ const ChatsListScreen = () => {
                     : "No date available",
                 },
                 otherUser: {
-                  id: metadata.otherMemberID, // Use otherMemberID as the ID for the other user
-                  displayName: metadata.otherMemberName, // Use the displayName from the chat metadata
-                  photoURL: otherUserPhotoURL, // Use the fetched photoURL
+                  id: metadata.otherMemberID,
+                  displayName: metadata.otherMemberName,
+                  photoURL: otherUserPhotoURL,
                 },
               };
             }
@@ -109,6 +109,7 @@ const ChatsListScreen = () => {
             <MessageCard
               key={room.chatroomId}
               room={room}
+              chatroomId={room.chatroomId}
               otherUser={room.otherUser}
               lastMessageContent={
                 room.lastMessage?.content || "No messages yet"

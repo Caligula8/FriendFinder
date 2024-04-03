@@ -11,7 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import NavBar from "../components/Navbar";
 import { globalStyles } from "../styles/globalStyles";
 
-const BrowseCategoriesScreen = () => {
+const ScreenTemplate = () => {
   const navigation = useNavigation();
   return (
     <View style={globalStyles.pageContainer}>
@@ -52,4 +52,4 @@ const ggg = StyleSheet.create({
   },
 });
 
-export default BrowseCategoriesScreen;
+export default ScreenTemplate;
