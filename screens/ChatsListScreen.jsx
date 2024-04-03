@@ -13,13 +13,7 @@ import NavBar from "../components/Navbar";
 import MessageCard from "../components/MessageCard";
 import { globalStyles } from "../styles/globalStyles";
 import { useSelector } from "react-redux";
-import {
-  QuerySnapshot,
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { firestoreDB } from "../config/firebase.config";
 
 const ChatsListScreen = () => {
@@ -29,55 +23,110 @@ const ChatsListScreen = () => {
   const [chats, setChats] = useState(null);
 
   useLayoutEffect(() => {
-    const chatQuery = query(
-      collection(firestoreDB, "chats"),
-      orderBy("_id", "desc") //needs to sort by most recent message
+    setIsLoading(true);
+
+    const chatsRef = doc(firestoreDB, "users", user._id, "chats", "user_chats");
+
+    // Subscribe to the document for real-time updates
+    const unsubscribe = onSnapshot(
+      chatsRef,
+      async (docSnap) => {
+        if (docSnap.exists()) {
+          const chatData = docSnap.data();
+          const chatPromises = Object.entries(chatData).map(
+            async ([chatId, metadata]) => {
+              try {
+                const otherUserDoc = await getDoc(metadata.otherMemberRef);
+                const otherUserData = otherUserDoc.exists()
+                  ? otherUserDoc.data()
+                  : {};
+                const lastMessage = metadata.lastContent || "No messages yet";
+                const timestamp = metadata.lastTimestamp
+                  ? new Date(metadata.lastTimestamp).toISOString()
+                  : "No date available";
+
+                return {
+                  chatroomId: chatId,
+                  lastMessage: {
+                    content: lastMessage,
+                    timestamp: timestamp,
+                  },
+                  otherUser: {
+                    ...otherUserData,
+                    id: otherUserDoc.id,
+                  },
+                };
+              } catch (error) {
+                console.error(
+                  `Error fetching other user data for chat ${chatId}:`,
+                  error
+                );
+                // Return a fallback structure if the document fetch fails
+                return {
+                  chatroomId: chatId,
+                  lastMessage: {
+                    content: "No messages yet",
+                    timestamp: "No date available",
+                  },
+                  otherUser: {
+                    id: "Information could not be retrieved",
+                    displayName: metadata.otherMemberName,
+                    photoURL: null,
+                  },
+                };
+              }
+            }
+          );
+
+          const resolvedChats = await Promise.all(chatPromises);
+          resolvedChats.sort(
+            (a, b) =>
+              new Date(b.lastMessage.timestamp) -
+              new Date(a.lastMessage.timestamp)
+          );
+          setChats(resolvedChats);
+          setIsLoading(false);
+        } else {
+          // Handle the case where the document does not exist
+          setIsLoading(false);
+          setChats([]); // Assuming an empty array is appropriate when there are no chats
+        }
+      },
+      (error) => {
+        console.error("Failed to subscribe to chat updates", error);
+        setIsLoading(false);
+      }
     );
 
-    const unsubscribe = onSnapshot(chatQuery, (querySnapshot) => {
-      const chatRooms = querySnapshot.docs.map((doc) => doc.data());
-      setChats(chatRooms);
-      setIsLoading(false);
-    });
-  }, []);
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [user._id]);
 
   return (
     <View style={globalStyles.pageContainer}>
       <View style={globalStyles.header}>
-        <View style={globalStyles.backButtonContainer}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back-outline" size={32} color="black" />
-          </TouchableOpacity>
-        </View>
-
         <View style={globalStyles.titleContainer}>
           <Text style={globalStyles.title}>Chats</Text>
         </View>
       </View>
 
       <ScrollView style={ggg.contentContainer}>
-        {/* When Chats Loading */}
         {isLoading ? (
-          <>
-            <View style={ggg.pageBodyContainer}>
-              <ActivityIndicator size={"large"} color={"#E24E59"} />
-            </View>
-          </>
+          <View style={ggg.pageBodyContainer}>
+            <ActivityIndicator size={"large"} color={"#E24E59"} />
+          </View>
         ) : (
-          <>
-            <MessageCard />
-            <MessageCard />
-            <MessageCard />
-            {chats && chats?.length > 0 ? (
-              <>
-                {chats.map((room) => (
-                  <MessageCard key={room._id} room={room} />
-                ))}
-              </>
-            ) : (
-              <></>
-            )}
-          </>
+          chats?.map((room) => (
+            <MessageCard
+              key={room.chatroomId}
+              room={room}
+              otherUser={room.otherUser}
+              lastMessageContent={
+                room.lastMessage?.content || "No messages yet"
+              }
+              timestamp={room.lastMessage?.timestamp}
+            />
+          ))
         )}
       </ScrollView>
 

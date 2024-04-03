@@ -8,35 +8,168 @@ import {
   StyleSheet,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { firestoreDB } from "../config/firebase.config";
+import {
+  collection,
+  query,
+  where,
+  getDoc,
+  getDocs,
+  setDoc,
+  doc,
+  writeBatch,
+} from "firebase/firestore";
 
 const MessagePromptModal = ({
   isVisible,
   onClose,
-  onSend,
   recipientUsername,
+  senderID,
+  recipientID,
+  senderName,
 }) => {
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    if (isSending) return; // Prevent sending multiple messages if send is pressed repeatedly
+
+    setErrorMessage("");
+    setIsSending(true);
+
+    // Check if the message is empty
     if (message.trim() === "") {
-      // If the message is empty on send attempt
       setErrorMessage("Message cannot be empty");
-      setTimeout(() => {
-        setErrorMessage("");
-      }, 2000);
+      setIsSending(false);
+      setTimeout(() => setErrorMessage(""), 2000);
       return;
     }
 
-    // Proceed with sending the message
-    onSend({ recipient: recipientUsername, message });
-    onClose();
+    // Reference to sender's and recipient's user_chats document
+    const senderChatsRef = doc(
+      firestoreDB,
+      "users",
+      senderID,
+      "chats",
+      "user_chats"
+    );
+    const recipientChatsRef = doc(
+      firestoreDB,
+      "users",
+      recipientID,
+      "chats",
+      "user_chats"
+    );
+
+    try {
+      // Fetch the sender's chat document to check for existing chats
+      const senderChatsDoc = await getDoc(senderChatsRef);
+      let chatExists = false;
+
+      if (senderChatsDoc.exists()) {
+        const chats = senderChatsDoc.data();
+        // Look through chat metadata to see if a chat already exists
+        chatExists = Object.keys(chats).some((key) => key === recipientID);
+      }
+
+      // If chat exists display error message
+      if (chatExists) {
+        setErrorMessage("You have already messaged this user");
+        setIsSending(false);
+        setTimeout(() => setErrorMessage(""), 2000);
+        return;
+      }
+
+      // Define IDs and references for the chatroom and the initial message
+      const chatroomDocId = `${senderID}_${recipientID}`;
+      const chatroomRef = doc(firestoreDB, "chats", chatroomDocId);
+      const unixTimestamp = Date.now();
+      const dateIdentifier = new Date(unixTimestamp)
+        .toISOString()
+        .split("T")[0];
+      const messageRef = doc(
+        firestoreDB,
+        "chats",
+        chatroomDocId,
+        "messages",
+        dateIdentifier
+      );
+
+      // Prepare initial message data
+      const messageData = {
+        [`${unixTimestamp}_${senderID}`]: {
+          content: message,
+          senderID: senderID,
+          timestamp: unixTimestamp,
+        },
+      };
+
+      // Prepare chat metadata for the sender and recipient
+      const senderChatMetadata = {
+        chatroomID: chatroomRef.id,
+        lastContent: message,
+        lastSenderID: senderID,
+        lastTimestamp: unixTimestamp,
+        otherMemberName: recipientUsername,
+        otherMemberRef: recipientChatsRef,
+      };
+
+      const recipientChatMetadata = {
+        chatroomID: chatroomRef.id,
+        lastContent: message,
+        lastSenderID: senderID,
+        lastTimestamp: unixTimestamp,
+        otherMemberName: senderName,
+        otherMemberRef: senderChatsRef,
+      };
+
+      // Start a batch to perform Firestore operations atomically
+      const batch = writeBatch(firestoreDB);
+
+      // Set the chatroom document
+      batch.set(
+        chatroomRef,
+        { members: [senderID, recipientID] },
+        { merge: true }
+      );
+
+      // Add the initial message to the chatroom
+      batch.set(messageRef, messageData, { merge: true });
+
+      // Update the user_chats document for both the sender and recipient
+      batch.set(
+        senderChatsRef,
+        { [recipientID]: senderChatMetadata },
+        { merge: true }
+      );
+      batch.set(
+        recipientChatsRef,
+        { [senderID]: recipientChatMetadata },
+        { merge: true }
+      );
+
+      // Commit the batch operation
+      await batch.commit();
+
+      // Reset state and close modal after successful operation
+      setMessage("");
+      setIsSending(false);
+      onClose();
+    } catch (error) {
+      // Handle any errors that occur during Firestore operations
+      console.error("Error sending message: ", error);
+      setErrorMessage("Failed to send message. Please try again later.");
+      setIsSending(false);
+      setTimeout(() => setErrorMessage(""), 2000);
+    }
   };
 
   useEffect(() => {
-    // Reset message state and error message when the modal visibility changes
+    // Reset message state, sending status, and error message when modal visibility changes
     if (!isVisible) {
       setMessage("");
+      setIsSending(false);
       setErrorMessage("");
     }
   }, [isVisible]);

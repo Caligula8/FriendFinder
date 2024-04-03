@@ -35,7 +35,7 @@ const BrowsePostsScreen = () => {
             })
           );
 
-          // Sort postSummaries by timestamp
+          // Sort by timestamp
           postSummaries.sort(
             (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
           );
@@ -101,6 +101,7 @@ const BrowsePostsScreen = () => {
               timestamp={postSummary.timestamp}
               onPress={() =>
                 navigation.navigate("FullScreenPost", {
+                  // Path constructed in FullScreenPost
                   postId: postId,
                   categoryName: categoryName,
                 })

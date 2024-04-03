@@ -14,7 +14,7 @@ const HomeScreen = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
-  const userLimit = 10; // Adjust as needed
+  const userLimit = 10;
   const userCollection = collection(firestoreDB, "users");
   const loggedInUser = useSelector((state) => state.user.user);
 
@@ -60,7 +60,7 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       const newSelectedUser = await fetchSelectedUser(
-        loggedInUser?._id, //causes (caught) error: [TypeError: Cannot read property '_id' of null]
+        loggedInUser?._id || "Guest", //causes (caught) error: [TypeError: Cannot read property '_id' of null]
         selectedUser
       );
       if (newSelectedUser !== null) {
@@ -77,13 +77,18 @@ const HomeScreen = () => {
   };
 
   const handlePressMessage = () => {
-    setModalVisible(true);
+    if (selectedUser) {
+      setModalVisible(true);
+    } else {
+      console.error("No user selected");
+    }
   };
 
   const handleSend = async (messageData) => {
     try {
       console.log("Sending message to:", messageData.recipient);
       console.log("Message content:", messageData.message);
+      setModalVisible(false);
 
       await fetchAndSetSelectedUser();
     } catch (error) {
@@ -124,8 +129,11 @@ const HomeScreen = () => {
       <MessagePromptModal
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
-        onSend={handleSend}
-        recipientUsername={selectedUser?.displayName || ""}
+        //onSend={handleSend}
+        recipientUsername={selectedUser?.displayName || "Guest"}
+        senderID={loggedInUser?._id || "Guest"}
+        recipientID={selectedUser?.uid || "Guest"}
+        senderName={loggedInUser?.displayName || "Guest"}
       />
 
       {/* Footer/Navbar */}

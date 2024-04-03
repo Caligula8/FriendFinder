@@ -16,6 +16,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { globalStyles } from "../styles/globalStyles";
 import { getDoc, doc } from "firebase/firestore";
 import { firestoreDB } from "../config/firebase.config";
+import { useSelector } from "react-redux";
 
 const SelectedPublicProfile = ({ route }) => {
   const { userID } = route.params;
@@ -40,6 +41,8 @@ const SelectedPublicProfile = ({ route }) => {
       fetchSelectedUserData();
     }
   }, [userID]);
+  const senderID = useSelector((state) => state.user.user._id);
+  const senderName = useSelector((state) => state.user.user.displayName);
 
   const displayName =
     selectedUser && selectedUser.displayName
@@ -176,8 +179,11 @@ const SelectedPublicProfile = ({ route }) => {
         <MessagePromptModal
           isVisible={isModalVisible}
           onClose={toggleModal}
-          onSend={handleSend}
+          //onSend={handleSend}
           recipientUsername={displayName}
+          senderID={senderID}
+          recipientID={userID}
+          senderName={senderName}
         />
 
         {/* Footer & Navbar */}
