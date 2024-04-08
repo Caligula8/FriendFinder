@@ -1,10 +1,29 @@
 import React from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 
-const HobbyButton = ({ HobbyName }) => {
+const HobbyButton = ({ HobbyName, state = "default" }) => {
+  // Default styles
+  let buttonStyleChanges = {
+    backgroundColor: "#fff",
+    borderColor: "#FDDBDD",
+  };
+  let textStyleChanges = {
+    color: "#8D8D8D",
+  };
+
+  // Adjust styles for match state
+  if (state === "match") {
+    buttonStyleChanges = {
+      ...buttonStyleChanges,
+      borderColor: "#FDDBDD",
+      backgroundColor: "#E24E59",
+    };
+    textStyleChanges.color = "#fff";
+  }
+
   return (
-    <View style={styles.button}>
-      <Text style={styles.buttonText}>{HobbyName}</Text>
+    <View style={[styles.button, buttonStyleChanges]}>
+      <Text style={[styles.buttonText, textStyleChanges]}>{HobbyName}</Text>
     </View>
   );
 };
@@ -21,8 +40,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 16,
     borderWidth: 2.5,
-    borderColor: "#FDDBDD",
-    backgroundColor: "#fff",
     elevation: 4,
     shadowColor: "rgba(203, 31, 44, 0.7)",
     shadowOffset: { width: 5, height: 0 },
@@ -32,7 +49,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#8D8D8D",
     textAlign: "center",
   },
 });

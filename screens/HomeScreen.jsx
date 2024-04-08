@@ -114,6 +114,7 @@ const HomeScreen = () => {
           <SuggestedProfile
             displayName={selectedUser.displayName}
             hobbies={selectedUser.hobbies}
+            userHobbies={loggedInUser.hobbies}
             onPressMessage={handlePressMessage}
             onPressNextUser={fetchAndSetSelectedUser}
             onPressProfile={() =>

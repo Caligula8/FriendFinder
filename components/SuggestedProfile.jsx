@@ -8,16 +8,21 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-import HobbyButton from "./HobbyButton"; // Import the HobbyButton component
+import HobbyButton from "./HobbyButton";
 
 const SuggestedProfile = ({
   displayName,
   hobbies,
+  userHobbies,
   onPressMessage,
   onPressNextUser,
   onPressProfile,
 }) => {
   const MAX_DISPLAYED_HOBBIES = 14;
+
+  const hobbyState = (hobby) =>
+    userHobbies.includes(hobby) ? "match" : "default";
+
   return (
     <View style={styles.profileBox}>
       <TouchableWithoutFeedback onPress={onPressProfile}>
@@ -27,7 +32,11 @@ const SuggestedProfile = ({
       {hobbies && hobbies.length > 0 && (
         <View style={styles.hobbiesContainer}>
           {hobbies.slice(0, MAX_DISPLAYED_HOBBIES).map((hobby, index) => (
-            <HobbyButton key={index} HobbyName={hobby} />
+            <HobbyButton
+              key={index}
+              HobbyName={hobby}
+              state={hobbyState(hobby)}
+            />
           ))}
           {hobbies.length > MAX_DISPLAYED_HOBBIES && (
             <View style={styles.moreHobbiesTextContainer}>
