@@ -5,12 +5,20 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import Accordion from "../../components/Accordion";
 import ContinueButton from "../../components/ContinueButton";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
 import { firestoreDB, firebaseAuth } from "../../config/firebase.config";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -22,6 +30,8 @@ const Register3 = () => {
   const [openAccordionIndex, setOpenAccordionIndex] = useState(null);
   const [categories, setCategories] = useState([]);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
+  const [initialHobbies, setInitialHobbies] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
   const isSelectionValid =
     selectedHobbies.length >= 5 && selectedHobbies.length <= 20;
   const [isValidColor, setIsValidColor] = useState("#8D8D8D");
@@ -62,21 +72,31 @@ const Register3 = () => {
 
   const handleContinue = async () => {
     if (isSelectionValid) {
+      setSubmitting(true);
       try {
         const userUID = firebaseAuth.currentUser.uid;
         const userRef = doc(firestoreDB, "users", userUID);
 
-        const data = {
-          hobbies: selectedHobbies,
-        };
+        // Update user's hobbies in their document
+        await updateDoc(userRef, { hobbies: selectedHobbies });
 
-        await updateDoc(userRef, data);
-        const updatedUser = { ...user, hobbies: selectedHobbies };
+        // Add the user to discover collection for each hobby
+        for (const hobby of selectedHobbies) {
+          const hobbyRef = doc(firestoreDB, "discover", hobby);
+          await updateDoc(hobbyRef, {
+            users: arrayUnion(userUID),
+          });
+        }
+
         // Update user in the Redux store
+        const updatedUser = { ...user, hobbies: selectedHobbies };
         dispatch({ type: "SET_USER", user: updatedUser });
+
+        setSubmitting(false);
         navigation.replace("Home");
       } catch (error) {
         console.error("Error updating user document (Register3): ", error);
+        setSubmitting(false);
       }
     } else {
       setIsValidColor("#e24e59");
@@ -88,44 +108,50 @@ const Register3 = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.backButtonContainer}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back-outline" size={32} color="black" />
-          </TouchableOpacity>
+      {submitting ? (
+        <View style={styles.activityIndicatorContainer}>
+          <ActivityIndicator size="large" color="#E24E59" />
         </View>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>I Am Interested In...</Text>
-          <Text style={styles.stepText}>Step 3/3</Text>
-        </View>
-        <View style={styles.accordionContainer}>
-          {categories.map((data, index) => (
-            <Accordion
-              key={index}
-              title={data.name}
-              hobbies={data.hobbies}
-              isOpen={index === openAccordionIndex}
-              onPress={() => handleAccordionPress(index)}
-              selectedHobbies={selectedHobbies}
-              onHobbySelect={(hobby, isSelected) =>
-                handleHobbySelect(hobby, isSelected)
-              }
-            />
-          ))}
-        </View>
-      </ScrollView>
-      <View style={styles.footer}>
-        <View style={styles.buttonContainer}>
-          <ContinueButton onPress={handleContinue} buttonText="Continue" />
-        </View>
-        <View style={styles.selectionInfo}>
-          <Text style={{ color: isValidColor }}>
-            {isSelectionValid
-              ? `${selectedHobbies.length} Hobbies Selected`
-              : "Please select between 5 and 20 hobbies"}
-          </Text>
-        </View>
-      </View>
+      ) : (
+        <>
+          <ScrollView style={styles.accordionScrollView}>
+            <View style={styles.backButtonContainer}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back-outline" size={32} color="black" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>I Am Interested In...</Text>
+              <Text style={styles.stepText}>Step 3/3</Text>
+            </View>
+            <View style={styles.accordionContainer}>
+              {categories.map((data, index) => (
+                <Accordion
+                  key={index}
+                  title={data.name}
+                  hobbies={data.hobbies}
+                  isOpen={index === openAccordionIndex}
+                  onPress={() => handleAccordionPress(index)}
+                  selectedHobbies={selectedHobbies}
+                  onHobbySelect={handleHobbySelect}
+                />
+              ))}
+            </View>
+          </ScrollView>
+          <View style={styles.footer}>
+            <View style={styles.buttonContainer}>
+              <ContinueButton onPress={handleContinue} buttonText="Continue" />
+            </View>
+            <View style={styles.selectionInfo}>
+              <Text style={{ color: isValidColor }}>
+                {isSelectionValid
+                  ? `${selectedHobbies.length} Hobbies Selected`
+                  : "Please select between 5 and 20 hobbies"}
+              </Text>
+            </View>
+          </View>
+        </>
+      )}
     </View>
   );
 };
@@ -185,6 +211,19 @@ const styles = StyleSheet.create({
     bottom: 24,
     left: 0,
     right: 0,
+  },
+  accordionScrollView: {
+    flex: 1,
+  },
+  activityIndicatorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
 });
 
