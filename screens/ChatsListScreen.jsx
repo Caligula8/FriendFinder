@@ -19,9 +19,7 @@ const ChatsListScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
   const [isLoading, setIsLoading] = useState(false);
-  const [chats, setChats] = useState(null);
-
-  // Inside ChatsListScreen's useLayoutEffect
+  const [chats, setChats] = useState([]);
 
   useLayoutEffect(() => {
     setIsLoading(true);
@@ -33,10 +31,10 @@ const ChatsListScreen = () => {
       async (docSnap) => {
         if (docSnap.exists()) {
           const chatData = docSnap.data();
-          // Map through the chat entries to fetch other user's photoURL from their profile
+          // Map through the chats to fetch other user's photoURL from their profile
           const chatPromises = Object.entries(chatData).map(
             async ([chatId, metadata]) => {
-              let otherUserPhotoURL = null; // Initialize with null, in case the profile does not exist or has no photoURL
+              let otherUserPhotoURL = null;
 
               // Fetch the other user's photoURL using otherMemberID
               const otherUserProfileRef = doc(

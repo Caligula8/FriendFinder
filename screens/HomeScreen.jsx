@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../components/Navbar";
 import SuggestedProfile from "../components/SuggestedProfile";
+import { Ionicons } from "@expo/vector-icons";
 import { globalStyles } from "../styles/globalStyles";
 import { useSelector } from "react-redux";
 import { getDocs, collection, query, orderBy, limit } from "firebase/firestore";
@@ -83,17 +84,8 @@ const HomeScreen = () => {
       console.error("No user selected");
     }
   };
-
-  const handleSend = async (messageData) => {
-    try {
-      console.log("Sending message to:", messageData.recipient);
-      console.log("Message content:", messageData.message);
-      setModalVisible(false);
-
-      await fetchAndSetSelectedUser();
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
+  const handleSelectFilter = () => {
+    navigation.navigate("Home");
   };
 
   useEffect(() => {
@@ -103,12 +95,19 @@ const HomeScreen = () => {
 
   return (
     <View style={globalStyles.pageContainer}>
+      {/* Header */}
       <View style={globalStyles.header}>
         <View style={globalStyles.titleContainer}>
           <Text style={globalStyles.title}>Discover Profiles</Text>
         </View>
+        <TouchableOpacity
+          style={globalStyles.headerIconContainerRight}
+          onPress={handleSelectFilter}
+        >
+          <Ionicons name="filter" size={32} color="black" />
+        </TouchableOpacity>
       </View>
-
+      {/* Body */}
       <View style={globalStyles.suggestedProfileContainer}>
         {selectedUser && (
           <SuggestedProfile
@@ -130,7 +129,6 @@ const HomeScreen = () => {
       <MessagePromptModal
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
-        //onSend={handleSend}
         recipientUsername={selectedUser?.displayName || "Guest"}
         senderID={loggedInUser?._id || "Guest"}
         recipientID={selectedUser?.uid || "Guest"}

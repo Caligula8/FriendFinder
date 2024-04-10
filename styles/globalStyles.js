@@ -42,6 +42,11 @@ export const globalStyles = StyleSheet.create({
     top: 75,
     right: 82,
   },
+  headerIconContainerRight2: {
+    position: "absolute",
+    top: 47,
+    right: 28,
+  },
   hideStatusBarHeader: {
     width: "100%",
     height: 28,

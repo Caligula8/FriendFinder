@@ -3,8 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Accordion from "../components/Accordion";
@@ -15,6 +15,8 @@ import {
   getDocs,
   getDoc,
   updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { firestoreDB, firebaseAuth } from "../config/firebase.config";
 import { useSelector, useDispatch } from "react-redux";
@@ -27,6 +29,8 @@ const ReSelectHobbiesScreen = () => {
   const [openAccordionIndex, setOpenAccordionIndex] = useState(null);
   const [categories, setCategories] = useState([]);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
+  const [initialHobbies, setInitialHobbies] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
   const isSelectionValid =
     selectedHobbies.length >= 5 && selectedHobbies.length <= 20;
   const [isValidColor, setIsValidColor] = useState("#8D8D8D");
@@ -35,21 +39,19 @@ const ReSelectHobbiesScreen = () => {
     const fetchUserDataAndCategories = async () => {
       try {
         const userUID = firebaseAuth.currentUser.uid;
-        // Fetch user's current hobbies from profile document
         const userRef = doc(firestoreDB, "users", userUID);
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
+          setInitialHobbies(userData.hobbies || []);
           setSelectedHobbies(userData.hobbies || []);
         }
-        // Fetch categories and their hobbies
         const categoriesCollectionRef = collection(firestoreDB, "categories");
         const querySnapshot = await getDocs(categoriesCollectionRef);
         const categoriesList = querySnapshot.docs.map((doc) => ({
           name: doc.id,
           hobbies: doc.data().hobbies.map((hobby) => ({ name: hobby })),
         }));
-
         setCategories(categoriesList);
       } catch (error) {
         console.error("Error fetching user data and categories:", error);
@@ -74,27 +76,48 @@ const ReSelectHobbiesScreen = () => {
 
   const handleContinue = async () => {
     if (isSelectionValid) {
+      setSubmitting(true);
       try {
         const userUID = firebaseAuth.currentUser.uid;
         const userRef = doc(firestoreDB, "users", userUID);
 
-        const data = {
-          hobbies: selectedHobbies,
-        };
+        // Update user's hobbies in their document
+        await updateDoc(userRef, { hobbies: selectedHobbies });
 
-        await updateDoc(userRef, data);
+        // Update hobbies lists in the 'discover' collection
+        for (const hobby of initialHobbies) {
+          if (!selectedHobbies.includes(hobby)) {
+            // User removed this hobby, so remove them from the list in 'discover'
+            const hobbyRef = doc(firestoreDB, "discover", hobby);
+            await updateDoc(hobbyRef, {
+              users: arrayRemove(userUID),
+            });
+          }
+        }
+        for (const hobby of selectedHobbies) {
+          if (!initialHobbies.includes(hobby)) {
+            // User added this hobby, so add them to the list in 'discover'
+            const hobbyRef = doc(firestoreDB, "discover", hobby);
+            await updateDoc(hobbyRef, {
+              users: arrayUnion(userUID),
+            });
+          }
+        }
 
-        const updatedUser = { ...user, hobbies: selectedHobbies };
         // Update user in the Redux store
+        const updatedUser = { ...user, hobbies: selectedHobbies };
         dispatch({ type: "SET_USER", user: updatedUser });
 
+        setSubmitting(false);
         navigation.goBack();
       } catch (error) {
         console.error(
           "Error updating user document (ReSelectHobbiesScreen): ",
           error
         );
+        setSubmitting(false);
       }
+      setSubmitting(false);
     } else {
       setIsValidColor("#e24e59");
       setTimeout(() => {
@@ -105,26 +128,30 @@ const ReSelectHobbiesScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Modify My Hobbies</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Modify My Hobbies</Text>
+      </View>
+      {submitting ? (
+        <View style={styles.activityIndicatorContainer}>
+          <ActivityIndicator size="large" color="#E24E59" />
         </View>
-        <View style={styles.accordionContainer}>
-          {categories.map((data, index) => (
-            <Accordion
-              key={index}
-              title={data.name}
-              hobbies={data.hobbies}
-              isOpen={index === openAccordionIndex}
-              onPress={() => handleAccordionPress(index)}
-              selectedHobbies={selectedHobbies}
-              onHobbySelect={(hobby, isSelected) =>
-                handleHobbySelect(hobby, isSelected)
-              }
-            />
-          ))}
-        </View>
-      </ScrollView>
+      ) : (
+        <ScrollView style={styles.accordionScrollView}>
+          <View style={styles.accordionContainer}>
+            {categories.map((data, index) => (
+              <Accordion
+                key={index}
+                title={data.name}
+                hobbies={data.hobbies}
+                isOpen={index === openAccordionIndex}
+                onPress={() => handleAccordionPress(index)}
+                selectedHobbies={selectedHobbies}
+                onHobbySelect={handleHobbySelect}
+              />
+            ))}
+          </View>
+        </ScrollView>
+      )}
       <View style={styles.footer}>
         <View style={styles.buttonContainer}>
           <ContinueButton onPress={handleContinue} buttonText="Submit" />
@@ -185,6 +212,19 @@ const styles = StyleSheet.create({
     bottom: 24,
     left: 0,
     right: 0,
+  },
+  scrollViewContent: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  accordionScrollView: {
+    flex: 1,
+  },
+  activityIndicatorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 108,
   },
 });
 

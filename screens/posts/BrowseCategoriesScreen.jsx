@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import NavBar from "../../components/Navbar";
 import { globalStyles } from "../../styles/globalStyles";
 import HobbyCategory from "../../components/HobbyCategory";
@@ -35,10 +35,10 @@ const BrowseCategoriesScreen = () => {
             <Text style={globalStyles.title}>Discover Categories</Text>
           </View>
           <TouchableOpacity
-            style={ggg.headerIconContainerRight}
+            style={globalStyles.headerIconContainerRight2}
             onPress={handleSelectHobbies}
           >
-            <MaterialCommunityIcons name="tune" size={32} color="black" />
+            <Ionicons name="filter" size={32} color="black" />
           </TouchableOpacity>
         </View>
         {/* Content */}
@@ -82,11 +82,6 @@ const ggg = StyleSheet.create({
     marginLeft: 24,
     position: "absolute",
     top: 47,
-  },
-  headerIconContainerRight: {
-    position: "absolute",
-    top: 47,
-    right: 28,
   },
 });
 
