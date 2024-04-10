@@ -8,7 +8,10 @@ import {
 } from "react-native";
 import HobbySelect from "./HobbySelect";
 import { useSelector, useDispatch } from "react-redux";
+import { SET_USER } from "../context/actions/userActions";
 import { Ionicons } from "@expo/vector-icons";
+import { updateDoc, doc } from "firebase/firestore"; // If you're updating Firestore
+import { firestoreDB } from "../config/firebase.config"; // If you're updating Firestore
 
 const SelectPrimaryHobbiesMenu = ({ isVisible, onClose }) => {
   if (!isVisible) {
@@ -36,12 +39,19 @@ const SelectPrimaryHobbiesMenu = ({ isVisible, onClose }) => {
     }
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    // Optionally, update primaryHobbies in Firebase
+    const userRef = doc(firestoreDB, "users", user._id);
+    await updateDoc(userRef, { primaryHobbies: selectedHobbies });
+
+    // Dispatch the action to update Redux store
+    dispatch(SET_USER({ ...user, primaryHobbies: selectedHobbies }));
+
     onClose();
   };
 
   return (
-    <TouchableWithoutFeedback onPress={onClose}>
+    <TouchableWithoutFeedback onPress={handleClose}>
       <View style={styles.overlay}>
         <TouchableWithoutFeedback>
           <View style={styles.container}>
