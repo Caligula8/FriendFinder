@@ -18,7 +18,7 @@ const SuggestedProfile = ({
   onPressNextUser,
   onPressProfile,
 }) => {
-  const MAX_DISPLAYED_HOBBIES = 14;
+  const MAX_DISPLAYED_HOBBIES = 17;
 
   const hobbyState = (hobby) =>
     userHobbies.includes(hobby) ? "match" : "default";
@@ -97,9 +97,10 @@ const styles = StyleSheet.create({
     height: "75%",
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
     marginTop: 20,
     marginHorizontal: 4,
+    overflow: "hidden",
     // borderColor: "black",
     // borderWidth: 1,
   },

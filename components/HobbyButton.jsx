@@ -31,15 +31,16 @@ const HobbyButton = ({ HobbyName, state = "default" }) => {
 const styles = StyleSheet.create({
   button: {
     flex: 0,
-    maxWidth: 150,
+    maxWidth: 160,
     minHeight: 46,
     justifyContent: "center",
     alignItems: "center",
     marginVertical: 6,
-    paddingHorizontal: 10,
+    marginRight: 6,
+    paddingHorizontal: 8,
     paddingVertical: 8,
     borderRadius: 16,
-    borderWidth: 2.5,
+    borderWidth: 2.2,
     elevation: 4,
     shadowColor: "rgba(203, 31, 44, 0.7)",
     shadowOffset: { width: 5, height: 0 },
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     textAlign: "center",
   },

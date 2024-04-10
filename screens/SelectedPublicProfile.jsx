@@ -6,6 +6,8 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   StyleSheet,
+  Image,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../components/Navbar";
@@ -22,6 +24,8 @@ const SelectedPublicProfile = ({ route }) => {
   const { userID } = route.params;
   const [selectedUser, setSelectedUser] = useState(null);
   const navigation = useNavigation();
+  const screenWidth = Dimensions.get("window").width;
+  const screenHeight = Dimensions.get("window").height;
 
   useEffect(() => {
     const fetchSelectedUserData = async () => {
@@ -37,10 +41,9 @@ const SelectedPublicProfile = ({ route }) => {
       }
     };
 
-    if (userID) {
-      fetchSelectedUserData();
-    }
+    fetchSelectedUserData();
   }, [userID]);
+
   const senderID = useSelector((state) => state.user.user._id);
   const senderName = useSelector((state) => state.user.user.displayName);
 
@@ -50,12 +53,17 @@ const SelectedPublicProfile = ({ route }) => {
       : "Guest";
   const userHobbies =
     selectedUser && selectedUser.hobbies ? selectedUser.hobbies : [];
-  const primaryHobbies =
-    selectedUser && selectedUser.primaryHobbies
-      ? selectedUser.primaryHobbies
-      : [];
-  const hobbyButtonLabels = [0, 1, 2].map(
-    (index) => primaryHobbies[index] || "Not Selected"
+  const description =
+    selectedUser && selectedUser.description ? selectedUser.description : null;
+  const hasPrimaryHobbies =
+    selectedUser &&
+    selectedUser.primaryHobbies &&
+    selectedUser.primaryHobbies.length > 0;
+
+  const hobbyButtonLabels = [0, 1, 2].map((index) =>
+    hasPrimaryHobbies
+      ? selectedUser.primaryHobbies[index] || "Not Selected"
+      : "Not Selected"
   );
 
   const [isModalVisible, setModalVisible] = useState(false);
@@ -73,7 +81,6 @@ const SelectedPublicProfile = ({ route }) => {
   };
 
   const onOptionSelect = (value) => {
-    // Handle option select logic here
     console.log("Selected option:", value);
     setMenuOpen(false);
   };
@@ -92,7 +99,6 @@ const SelectedPublicProfile = ({ route }) => {
   };
 
   const handleSend = (messageData) => {
-    // Add logic for sending the message
     console.log("Sending message to:", messageData.recipient);
     console.log("Message content:", messageData.message);
     setModalVisible(false);
@@ -101,17 +107,19 @@ const SelectedPublicProfile = ({ route }) => {
   return (
     <TouchableWithoutFeedback onPress={onBackdropPress}>
       <View style={globalStyles.pageContainer}>
-        {/* Header */}
         <ScrollView style={ggg.contentContainer}>
-          <View style={ggg.profileHeaderContainer}>
-            {/* Back Button */}
+          <View
+            style={[
+              ggg.profileHeaderContainer,
+              { height: screenHeight * 0.18 },
+            ]}
+          >
             <TouchableOpacity
               style={ggg.backButton}
               onPress={() => navigation.goBack()}
             >
               <Ionicons name="arrow-back-outline" size={32} color="black" />
             </TouchableOpacity>
-            {/* Options Button */}
             <TouchableOpacity
               ref={iconRef}
               onPress={onTriggerPress}
@@ -123,43 +131,54 @@ const SelectedPublicProfile = ({ route }) => {
                 color="black"
               />
             </TouchableOpacity>
-            {/* Options Menu */}
-            <ThreeDotsMenu
-              isVisible={isMenuOpen}
-              onOptionSelect={onOptionSelect}
-              iconLayout={iconLayout}
-            />
-            {/* Overlay */}
             {isMenuOpen && (
-              <TouchableWithoutFeedback onPress={closeMenu}>
-                <View style={ggg.overlay} />
-              </TouchableWithoutFeedback>
+              <ThreeDotsMenu
+                isVisible={isMenuOpen}
+                onOptionSelect={onOptionSelect}
+                iconLayout={iconLayout}
+                closeMenu={closeMenu}
+              />
             )}
             <Text style={ggg.profileTitle}>Hi, I'm {displayName}</Text>
           </View>
-          {/* Content */}
+          {selectedUser?.photoURL && (
+            <View style={ggg.profileImageContainer}>
+              <Image
+                source={{ uri: selectedUser.photoURL }}
+                style={{
+                  width: screenWidth * 0.5,
+                  height: screenWidth * 0.5,
+                  borderRadius: 16,
+                }}
+              />
+            </View>
+          )}
           <View style={ggg.subContentContainer}>
-            {/* About Me */}
-            <View style={ggg.profileElementContainer}>
-              <Text style={ggg.subTitle}>About Me</Text>
-              <Text style={ggg.text}>
-                {selectedUser?.description || "No information available"}
-              </Text>
-            </View>
-            {/* Primary Hobbies */}
-            <View style={ggg.profileElementContainer}>
-              <Text style={ggg.subTitle}>I'm Most Interested In</Text>
-              <View style={ggg.primaryHobbiesContainer}>
-                {hobbyButtonLabels.map((label, index) => (
-                  <View key={index} style={ggg.primaryHobby}>
-                    <Text style={ggg.primaryHobbyText}>{label}</Text>
-                  </View>
-                ))}
+            {description && (
+              <View style={ggg.profileElementContainer}>
+                <Text style={ggg.subTitle}>About Me</Text>
+                <Text style={ggg.text}>{description}</Text>
               </View>
-            </View>
-            {/* All Hobbies */}
+            )}
+            {hasPrimaryHobbies && (
+              <View style={ggg.profileElementContainer}>
+                <Text style={ggg.subTitle}>I'm Most Interested In</Text>
+                <View style={ggg.primaryHobbiesContainer}>
+                  {hobbyButtonLabels.map(
+                    (label, index) =>
+                      label !== "Not Selected" && (
+                        <View key={index} style={ggg.primaryHobby}>
+                          <Text style={ggg.primaryHobbyText}>{label}</Text>
+                        </View>
+                      )
+                  )}
+                </View>
+              </View>
+            )}
             <View style={ggg.profileElementContainer}>
-              <Text style={ggg.subTitle}>But I Also Like</Text>
+              <Text style={ggg.subTitle}>
+                {hasPrimaryHobbies ? "But I Also Like" : "My Hobbies"}
+              </Text>
               <View style={ggg.hobbiesContainer}>
                 {userHobbies.map((hobby, index) => (
                   <HobbyButton key={index} HobbyName={hobby} />
@@ -168,25 +187,21 @@ const SelectedPublicProfile = ({ route }) => {
             </View>
           </View>
         </ScrollView>
-
         <TouchableOpacity
           style={ggg.openChatPromptButton}
           onPress={toggleModal}
         >
           <Ionicons name="chatbubbles-outline" size={32} color="white" />
         </TouchableOpacity>
-
         <MessagePromptModal
           isVisible={isModalVisible}
           onClose={toggleModal}
-          //onSend={handleSend}
+          onSend={handleSend}
           recipientUsername={displayName}
           senderID={senderID}
           recipientID={userID}
           senderName={senderName}
         />
-
-        {/* Footer & Navbar */}
         <View style={globalStyles.footer}>
           <NavBar />
         </View>
@@ -205,9 +220,7 @@ const ggg = StyleSheet.create({
   },
   profileHeaderContainer: {
     width: "100%",
-    height: 110,
     position: "relative",
-    justifyContent: "center",
     alignItems: "center",
   },
   profileElementContainer: {
@@ -223,7 +236,7 @@ const ggg = StyleSheet.create({
     fontWeight: "bold",
     color: "#080808",
     position: "absolute",
-    top: 65,
+    bottom: 8,
   },
   subTitle: {
     fontSize: 20,
@@ -246,18 +259,17 @@ const ggg = StyleSheet.create({
     right: 16,
   },
   primaryHobbiesContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 12,
+    width: "100%",
+    flexDirection: "column",
   },
   primaryHobby: {
-    flex: 1,
     height: 64,
+    width: "100%",
     borderWidth: 2.5,
     borderRadius: 10,
     borderColor: "#fddbdd",
     padding: 10,
-    marginHorizontal: 5,
+    marginTop: 16,
     backgroundColor: "#fff",
     justifyContent: "center",
     elevation: 5,
@@ -274,10 +286,14 @@ const ggg = StyleSheet.create({
   hobbiesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
+    justifyContent: "flex-start",
     alignItems: "center",
     marginTop: 6,
     marginBottom: 6,
+  },
+  profileImageContainer: {
+    alignItems: "center",
+    marginVertical: 14,
   },
   openChatPromptButton: {
     position: "absolute",
