@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../components/Navbar";
 import SuggestedProfile from "../components/SuggestedProfile";
@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { getDocs, collection, query, orderBy, limit } from "firebase/firestore";
 import { firestoreDB } from "../config/firebase.config";
 import MessagePromptModal from "../components/MessagePromptModal";
+import ProfileFilter from "../components/ProfileFilter";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -18,6 +19,8 @@ const HomeScreen = () => {
   const userLimit = 10;
   const userCollection = collection(firestoreDB, "users");
   const loggedInUser = useSelector((state) => state.user.user);
+  const userHobbies = useSelector((state) => state.user.user.hobbies);
+  const [filterVisible, setFilterVisible] = useState(false);
 
   const fetchSelectedUser = async (loggedInUserUID, currentSelectedUser) => {
     try {
@@ -85,7 +88,7 @@ const HomeScreen = () => {
     }
   };
   const handleSelectFilter = () => {
-    navigation.navigate("Home");
+    setFilterVisible(true);
   };
 
   useEffect(() => {
@@ -126,6 +129,14 @@ const HomeScreen = () => {
         )}
       </View>
 
+      {filterVisible && (
+        <ProfileFilter
+          isVisible={filterVisible}
+          onClose={() => setFilterVisible(false)}
+          userHobbies={userHobbies}
+        />
+      )}
+
       <MessagePromptModal
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
@@ -142,5 +153,19 @@ const HomeScreen = () => {
     </View>
   );
 };
+
+const ggg = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+    zIndex: 1,
+  },
+  menuContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
+  },
+});
 
 export default HomeScreen;

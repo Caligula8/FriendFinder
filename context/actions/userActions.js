@@ -16,3 +16,10 @@ export const SET_REGISTRATION_COMPLETE = () => {
     type: "SET_REGISTRATION_COMPLETE",
   };
 };
+
+export const SET_SELECTED_HOBBY = (hobby) => {
+  return {
+    type: "SET_SELECTED_HOBBY",
+    hobby,
+  };
+};

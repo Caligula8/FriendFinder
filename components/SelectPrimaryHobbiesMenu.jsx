@@ -4,105 +4,93 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
-import HobbySelect from "../components/HobbySelect";
-import { updateDoc, doc } from "firebase/firestore";
-import { firestoreDB } from "../config/firebase.config";
+import HobbySelect from "./HobbySelect";
 import { useSelector, useDispatch } from "react-redux";
-import { SET_USER } from "../context/actions/userActions";
 import { Ionicons } from "@expo/vector-icons";
 
 const SelectPrimaryHobbiesMenu = ({ isVisible, onClose }) => {
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
-  const userHobbies = user.hobbies || [];
-
-  const [selectedHobbies, setSelectedHobbies] = useState([]);
-
-  useEffect(() => {
-    // Initialize menu with user's primaryHobbies
-    setSelectedHobbies(user.primaryHobbies || []);
-  }, [user.primaryHobbies]);
-
   if (!isVisible) {
     return null;
   }
 
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
+  const userHobbies = user.hobbies || [];
+  const [selectedHobbies, setSelectedHobbies] = useState(
+    user.primaryHobbies || []
+  );
+
+  useEffect(() => {
+    setSelectedHobbies(user.primaryHobbies || []);
+  }, [user.primaryHobbies]);
+
   const handleHobbySelect = (hobby, isSelected) => {
     if (isSelected) {
-      //check if the limit is reached
       if (selectedHobbies.length < 3) {
-        setSelectedHobbies((prevHobbies) => [...prevHobbies, hobby]);
+        setSelectedHobbies([...selectedHobbies, hobby]);
       }
     } else {
-      // If deselecting hobby, remove from the list
-      setSelectedHobbies((prevHobbies) =>
-        prevHobbies.filter((h) => h !== hobby)
-      );
+      setSelectedHobbies(selectedHobbies.filter((h) => h !== hobby));
     }
   };
 
   const handleClose = () => {
-    // Update primaryHobbies in Firebase
-    const userRef = doc(firestoreDB, "users", user._id);
-    updateDoc(userRef, { primaryHobbies: selectedHobbies });
-
-    // Dispatch the action to update Redux store
-    dispatch(SET_USER({ ...user, primaryHobbies: selectedHobbies }));
-
     onClose();
   };
 
   return (
-    <View style={ggg.menuContainer}>
-      {/* <ScrollView> */}
-      {/* Header */}
-      <View style={ggg.header}>
-        <Text style={ggg.menuTitle}>Select Your Primary Hobbies</Text>
-        <Text style={ggg.menuSubTitle}>Select Up To 3</Text>
+    <TouchableWithoutFeedback onPress={onClose}>
+      <View style={styles.overlay}>
+        <TouchableWithoutFeedback>
+          <View style={styles.container}>
+            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+              <Ionicons name="close" size={32} color="black" />
+            </TouchableOpacity>
+            <View style={styles.header}>
+              <Text style={styles.menuTitle}>Select Your Primary Hobbies</Text>
+              <Text style={styles.menuSubTitle}>Select Up To 3</Text>
+            </View>
+            <View style={styles.hobbiesContainer}>
+              {userHobbies.map((hobby, index) => (
+                <HobbySelect
+                  key={index}
+                  HobbyName={hobby}
+                  onSelect={(isSelected) =>
+                    handleHobbySelect(hobby, isSelected)
+                  }
+                  isSelected={selectedHobbies.includes(hobby)}
+                />
+              ))}
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
-
-      {/* Close button */}
-      <TouchableOpacity onPress={handleClose} style={ggg.closeButton}>
-        <Ionicons name="close" size={32} color="black" />
-      </TouchableOpacity>
-
-      {/* Content*/}
-      <View style={ggg.hobbiesContainer}>
-        {userHobbies.map((hobby, index) => (
-          <HobbySelect
-            key={index}
-            HobbyName={hobby}
-            onSelect={(isSelected) => handleHobbySelect(hobby, isSelected)}
-            isSelected={selectedHobbies.includes(hobby)}
-          />
-        ))}
-      </View>
-      {/* </ScrollView> */}
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
-const ggg = StyleSheet.create({
-  menuContainer: {
-    flex: 0,
+const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  container: {
     backgroundColor: "white",
     borderRadius: 8,
     padding: 10,
-    flexDirection: "column",
-    alignItems: "flex-start",
     borderWidth: 1,
     borderColor: "black",
-    zIndex: 2,
     width: "90%",
-    alignSelf: "center",
-    minHeight: "35%",
-    maxHeight: "88%",
+    maxHeight: "80%",
   },
   header: {
-    width: "80%",
-    marginBottom: 10,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    width: "90%",
   },
   menuTitle: {
     fontSize: 22,

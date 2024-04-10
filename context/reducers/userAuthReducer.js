@@ -1,6 +1,8 @@
+// userAuthReducer
 const initialState = {
   user: null,
   registrationComplete: false,
+  selectedHobby: "",
 };
 
 const userAuthReducer = (state = initialState, action) => {
@@ -21,6 +23,11 @@ const userAuthReducer = (state = initialState, action) => {
       return {
         ...state,
         registrationComplete: true,
+      };
+    case "SET_SELECTED_HOBBY":
+      return {
+        ...state,
+        selectedHobby: action.hobby,
       };
     default:
       return state;

@@ -221,34 +221,17 @@ const MyProfileScreen = () => {
         <NavBar />
       </View>
 
-      {/* Transparent Overlay */}
       {isHobbiesMenuOpen && (
-        <View style={ggg.overlay}>
-          {/* Centered SelectPrimaryHobbiesMenu */}
-          <View style={ggg.menuContainer}>
-            <SelectPrimaryHobbiesMenu
-              isVisible={isHobbiesMenuOpen}
-              onClose={() => setHobbiesMenuOpen(false)}
-            />
-          </View>
-        </View>
+        <SelectPrimaryHobbiesMenu
+          isVisible={isHobbiesMenuOpen}
+          onClose={() => setHobbiesMenuOpen(false)}
+        />
       )}
     </View>
   );
 };
 
 const ggg = StyleSheet.create({
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
-    zIndex: 1,
-  },
-  menuContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 2,
-  },
   profileImageContainer: {
     alignItems: "center",
     paddingTop: 18,
