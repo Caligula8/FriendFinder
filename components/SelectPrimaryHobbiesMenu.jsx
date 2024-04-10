@@ -56,37 +56,37 @@ const SelectPrimaryHobbiesMenu = ({ isVisible, onClose }) => {
 
   return (
     <View style={ggg.menuContainer}>
-      <ScrollView>
-        {/* Header */}
-        <View style={ggg.header}>
-          <Text style={ggg.menuTitle}>Select Your Primary Hobbies</Text>
-          <Text style={ggg.menuSubTitle}>Select Up To 3</Text>
-        </View>
+      {/* <ScrollView> */}
+      {/* Header */}
+      <View style={ggg.header}>
+        <Text style={ggg.menuTitle}>Select Your Primary Hobbies</Text>
+        <Text style={ggg.menuSubTitle}>Select Up To 3</Text>
+      </View>
 
-        {/* Close button */}
-        <TouchableOpacity onPress={handleClose} style={ggg.closeButton}>
-          <Ionicons name="close" size={32} color="black" />
-        </TouchableOpacity>
+      {/* Close button */}
+      <TouchableOpacity onPress={handleClose} style={ggg.closeButton}>
+        <Ionicons name="close" size={32} color="black" />
+      </TouchableOpacity>
 
-        {/* Content*/}
-        <View style={ggg.hobbiesContainer}>
-          {userHobbies.map((hobby, index) => (
-            <HobbySelect
-              key={index}
-              HobbyName={hobby}
-              onSelect={(isSelected) => handleHobbySelect(hobby, isSelected)}
-              isSelected={selectedHobbies.includes(hobby)}
-            />
-          ))}
-        </View>
-      </ScrollView>
+      {/* Content*/}
+      <View style={ggg.hobbiesContainer}>
+        {userHobbies.map((hobby, index) => (
+          <HobbySelect
+            key={index}
+            HobbyName={hobby}
+            onSelect={(isSelected) => handleHobbySelect(hobby, isSelected)}
+            isSelected={selectedHobbies.includes(hobby)}
+          />
+        ))}
+      </View>
+      {/* </ScrollView> */}
     </View>
   );
 };
 
 const ggg = StyleSheet.create({
   menuContainer: {
-    position: "absolute",
+    flex: 0,
     backgroundColor: "white",
     borderRadius: 8,
     padding: 10,
@@ -97,7 +97,8 @@ const ggg = StyleSheet.create({
     zIndex: 2,
     width: "90%",
     alignSelf: "center",
-    height: "88%",
+    minHeight: "35%",
+    maxHeight: "88%",
   },
   header: {
     width: "80%",
@@ -110,7 +111,6 @@ const ggg = StyleSheet.create({
   },
   menuSubTitle: {
     fontSize: 18,
-    //fontWeight: "bold",
     color: "#8D8D8D",
   },
   closeButton: {
@@ -122,7 +122,7 @@ const ggg = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    marginTop: 10,
+    marginVertical: 10,
   },
 });
 

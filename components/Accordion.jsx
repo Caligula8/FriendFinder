@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   buttonList: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
+    justifyContent: "flex-start",
     alignItems: "center",
     marginTop: 6,
     marginBottom: 6,

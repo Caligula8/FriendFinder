@@ -214,6 +214,7 @@ const styles = StyleSheet.create({
   },
   accordionScrollView: {
     flex: 1,
+    marginBottom: 50,
   },
   activityIndicatorContainer: {
     flex: 1,
