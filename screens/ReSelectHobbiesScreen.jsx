@@ -20,11 +20,13 @@ import {
 } from "firebase/firestore";
 import { firestoreDB, firebaseAuth } from "../config/firebase.config";
 import { useSelector, useDispatch } from "react-redux";
+import useNonRejectedUsers from "../components/useNonRejectedUsers";
 
 const ReSelectHobbiesScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
+  const { fetchAndFilterUsers } = useNonRejectedUsers(user);
 
   const [openAccordionIndex, setOpenAccordionIndex] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -107,6 +109,9 @@ const ReSelectHobbiesScreen = () => {
         // Update user in the Redux store
         const updatedUser = { ...user, hobbies: selectedHobbies };
         dispatch({ type: "SET_USER", user: updatedUser });
+
+        //find new users who share at least one hobby
+        fetchAndFilterUsers(user);
 
         setSubmitting(false);
         navigation.goBack();

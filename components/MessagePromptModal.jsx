@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { firestoreDB } from "../config/firebase.config";
-import { getDoc, doc, writeBatch } from "firebase/firestore";
+import { getDoc, doc, writeBatch, arrayUnion } from "firebase/firestore";
 
 const MessagePromptModal = ({
   isVisible,
@@ -18,6 +18,7 @@ const MessagePromptModal = ({
   senderID,
   recipientID,
   senderName,
+  onMessageSent,
 }) => {
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -54,14 +55,15 @@ const MessagePromptModal = ({
     );
 
     try {
-      // Fetch the sender's chat document to check for existing chats
+      const chatroomDocId = [senderID, recipientID].sort().join("_");
+
       const senderChatsDoc = await getDoc(senderChatsRef);
       let chatExists = false;
 
       if (senderChatsDoc.exists()) {
         const chats = senderChatsDoc.data();
-        // Look through chat metadata to see if a chat already exists
-        chatExists = Object.keys(chats).some((key) => key === recipientID);
+        // Check if this particular chatroomDocId already exists
+        chatExists = chats.hasOwnProperty(chatroomDocId);
       }
 
       // If chat exists display error message
@@ -73,7 +75,6 @@ const MessagePromptModal = ({
       }
 
       // Define IDs and references for the chatroom and the initial message
-      const chatroomDocId = `${senderID}_${recipientID}`;
       const chatroomRef = doc(firestoreDB, "chats", chatroomDocId);
       const unixTimestamp = Date.now();
       const dateIdentifier = new Date(unixTimestamp)
@@ -98,7 +99,7 @@ const MessagePromptModal = ({
 
       // Prepare chat metadata for the sender and recipient
       const senderChatMetadata = {
-        chatroomID: chatroomRef.id,
+        chatroomID: chatroomDocId,
         lastContent: message,
         lastSenderID: senderID,
         lastTimestamp: unixTimestamp,
@@ -108,7 +109,7 @@ const MessagePromptModal = ({
       };
 
       const recipientChatMetadata = {
-        chatroomID: chatroomRef.id,
+        chatroomID: chatroomDocId,
         lastContent: message,
         lastSenderID: senderID,
         lastTimestamp: unixTimestamp,
@@ -120,7 +121,7 @@ const MessagePromptModal = ({
       // Start a batch to perform Firestore operations atomically
       const batch = writeBatch(firestoreDB);
 
-      // Set the chatroom document
+      // Set the chatroom document with members, creating a new one if it doesn't exist
       batch.set(
         chatroomRef,
         { members: [senderID, recipientID] },
@@ -130,13 +131,12 @@ const MessagePromptModal = ({
       // Add the initial message to the chatroom
       batch.set(messageRef, messageData, { merge: true });
 
-      // Update the user_chats document for both the sender and recipient
+      // Set the user_chats document for both the sender and recipient with new chat metadata
       batch.set(
         senderChatsRef,
         { [chatroomDocId]: senderChatMetadata },
         { merge: true }
       );
-
       batch.set(
         recipientChatsRef,
         { [chatroomDocId]: recipientChatMetadata },
@@ -150,6 +150,9 @@ const MessagePromptModal = ({
       setMessage("");
       setIsSending(false);
       onClose();
+
+      // Trigger handleNextUser in HomeScreen
+      onMessageSent(); // Ensure this function is passed down as a prop
     } catch (error) {
       // Handle any errors that occur during Firestore operations
       console.error("Error sending message: ", error);

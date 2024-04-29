@@ -205,7 +205,7 @@ const MyProfileScreen = () => {
         {/* Buttons */}
         <View style={ggg.buttonContainer}>
           <ContinueButton
-            onPress={handleReSelectHobbies} //need change this
+            onPress={handleReSelectHobbies}
             buttonText="Modify My Hobbies"
             transparency={0.7}
           />

@@ -102,8 +102,12 @@ const ChatsListScreen = () => {
           <View style={ggg.pageBodyContainer}>
             <ActivityIndicator size={"large"} color={"#E24E59"} />
           </View>
+        ) : chats.length === 0 ? (
+          <View style={ggg.centeredMessageContainer}>
+            <Text style={ggg.centeredMessageText}>No Chats Yet</Text>
+          </View>
         ) : (
-          chats?.map((room) => (
+          chats.map((room) => (
             <MessageCard
               key={room.chatroomId}
               room={room}
@@ -136,6 +140,16 @@ const ggg = StyleSheet.create({
     display: "flex",
     justifyContent: "flex-start",
     alignItems: "center",
+  },
+  centeredMessageContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 12,
+  },
+  centeredMessageText: {
+    fontWeight: "bold",
+    fontSize: 22,
   },
 });
 

@@ -16,7 +16,7 @@ const Accordion = ({
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.header} onPress={onPress}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{title.slice(4)}</Text>
         {/*Chevron Icon*/}
         <FontAwesome
           name={isOpen ? "chevron-up" : "chevron-down"}

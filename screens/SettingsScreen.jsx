@@ -72,7 +72,7 @@ const SettingsScreen = () => {
         <View style={globalStyles.contentContainer}>
           <TouchableOpacity
             style={ggg.settingsItem}
-            onPress={() => navigateToPage("AccountManagement")}
+            onPress={() => navigateToPage("AcctManagement")}
           >
             <Ionicons
               name="person-outline"
@@ -85,20 +85,7 @@ const SettingsScreen = () => {
 
           <TouchableOpacity
             style={ggg.settingsItem}
-            onPress={() => navigateToPage("Test")}
-          >
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              color="black"
-              style={ggg.settingsIcon}
-            />
-            <Text style={ggg.settingsText}>Notifications</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={ggg.settingsItem}
-            onPress={() => navigateToPage("PreviousPosts")}
+            onPress={() => navigateToPage("MyPosts")}
           >
             <Ionicons
               name="document-text-outline"
@@ -120,45 +107,6 @@ const SettingsScreen = () => {
               style={ggg.settingsIcon}
             />
             <Text style={ggg.settingsText}>Manage Blocked List</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={ggg.settingsItem}
-            onPress={() => navigateToPage("Test3")}
-          >
-            <Ionicons
-              name="file-tray-full-outline"
-              size={24}
-              color="black"
-              style={ggg.settingsIcon}
-            />
-            <Text style={ggg.settingsText}>Terms of Service</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={ggg.settingsItem}
-            onPress={() => navigateToPage("Test2")}
-          >
-            <Ionicons
-              name="lock-closed-outline"
-              size={24}
-              color="black"
-              style={ggg.settingsIcon}
-            />
-            <Text style={ggg.settingsText}>Privacy Policy</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={ggg.settingsItem}
-            onPress={() => navigateToPage("ContactSupport")}
-          >
-            <Ionicons
-              name="help-buoy-outline"
-              size={24}
-              color="black"
-              style={ggg.settingsIcon}
-            />
-            <Text style={ggg.settingsText}>Contact Support</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

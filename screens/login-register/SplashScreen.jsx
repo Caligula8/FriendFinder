@@ -8,21 +8,23 @@ import { firebaseAuth, firestoreDB } from "../../config/firebase.config";
 import { doc, getDoc } from "firebase/firestore";
 import { SET_USER } from "../../context/actions/userActions";
 import { useDispatch, useSelector } from "react-redux";
+import useNonRejectedUsers from "../../components/useNonRejectedUsers";
 
 const SplashScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
   const registrationComplete = useSelector(
     (state) => state.user.registrationComplete
   );
   const [initialCheckDone, setInitialCheckDone] = useState(false);
+  const { fetchAndFilterUsers } = useNonRejectedUsers(user);
 
   useEffect(() => {
     const unsubscribe = firebaseAuth.onAuthStateChanged((userCred) => {
       if (userCred?.uid) {
         getDoc(doc(firestoreDB, "users", userCred?.uid)).then((docSnap) => {
           if (docSnap.exists()) {
-            console.log("User Data:", docSnap.data());
             dispatch(SET_USER(docSnap.data()));
             setInitialCheckDone(true);
           }
@@ -36,14 +38,21 @@ const SplashScreen = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (initialCheckDone && registrationComplete) {
+    if (initialCheckDone && registrationComplete && user) {
+      fetchAndFilterUsers(user);
       setTimeout(() => {
         navigation.replace("Home");
       }, 2000);
     } else if (initialCheckDone) {
       navigation.replace("Welcome");
     }
-  }, [initialCheckDone, registrationComplete, navigation]);
+  }, [
+    initialCheckDone,
+    registrationComplete,
+    navigation,
+    user,
+    fetchAndFilterUsers,
+  ]);
 
   return (
     <LinearGradient

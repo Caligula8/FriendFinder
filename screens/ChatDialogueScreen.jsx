@@ -136,46 +136,50 @@ const ChatDialogueScreen = ({ route }) => {
   const formatTimestamp = (timestamp) => {
     const now = new Date();
     const messageDate = new Date(timestamp);
-    const oneMinute = 60000;
-    const oneDay = 86400000;
-    const sevenDays = oneDay * 7;
-
     const elapsedTime = now - messageDate;
 
-    if (elapsedTime < oneMinute) {
+    // Helper function to format single digits with leading zero
+    const zeroPad = (num) => String(num).padStart(2, "0");
+
+    // Time formatting
+    let hours = messageDate.getHours();
+    const minutes = zeroPad(messageDate.getMinutes());
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12;
+    hours = hours || 12; // the hour '0' should be '12'
+    const timeString = `${hours}:${minutes} ${ampm}`;
+
+    // Date formatting
+    const daysDifference = (now - messageDate) / (1000 * 3600 * 24);
+    if (elapsedTime < 60 * 1000) {
       return "Just Now";
     } else if (
-      elapsedTime < oneDay &&
+      elapsedTime < 24 * 60 * 60 * 1000 &&
       messageDate.getDate() === now.getDate()
     ) {
-      return messageDate.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true,
-      });
-    } else if (elapsedTime < sevenDays) {
-      return messageDate.toLocaleTimeString("en-US", {
-        weekday: "long",
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true,
-      });
+      return timeString;
+    } else if (daysDifference < 7) {
+      const weekdays = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      const weekday = weekdays[messageDate.getDay()];
+      return `${weekday} at ${timeString}`;
     } else {
-      const yearFormat =
-        messageDate.getFullYear() === now.getFullYear() ? "" : "/yy";
-      return (
-        messageDate.toLocaleDateString("en-US", {
-          month: "numeric",
-          day: "numeric",
-          year: yearFormat,
-        }) +
-        " " +
-        messageDate.toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        })
-      );
+      const year =
+        messageDate.getFullYear() === now.getFullYear()
+          ? ""
+          : `/${messageDate.getFullYear().toString().substr(-2)}`;
+      const date =
+        zeroPad(messageDate.getMonth() + 1) +
+        "/" +
+        zeroPad(messageDate.getDate());
+      return `${date}${year} at ${timeString}`;
     }
   };
 

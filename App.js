@@ -25,6 +25,9 @@ import {
   BrowsePostsScreen,
   ExpandedPostScreen,
   CreatePostScreen,
+  MyPreviousPosts,
+  BlockedList,
+  AcctManagement,
 } from "./screens";
 
 import { Provider } from "react-redux";
@@ -67,6 +70,11 @@ const App = () => {
           <Stack.Screen name="Posts" component={BrowsePostsScreen} />
           <Stack.Screen name="FullScreenPost" component={ExpandedPostScreen} />
           <Stack.Screen name="CreatePost" component={CreatePostScreen} />
+
+          <Stack.Screen name="AcctManagement" component={AcctManagement} />
+          <Stack.Screen name="MyPosts" component={MyPreviousPosts} />
+          <Stack.Screen name="BlockedList" component={BlockedList} />
+
           <Stack.Screen name="Test" component={TestScreen} />
           <Stack.Screen name="Test2" component={TestScreen2} />
           <Stack.Screen name="Test3" component={TestScreen3} />

@@ -12,7 +12,7 @@ import HobbyButton from "./HobbyButton";
 
 const SuggestedProfile = ({
   displayName,
-  hobbies,
+  hobbies = [],
   userHobbies,
   onPressMessage,
   onPressNextUser,
@@ -23,32 +23,37 @@ const SuggestedProfile = ({
   const hobbyState = (hobby) =>
     userHobbies.includes(hobby) ? "match" : "default";
 
+  // Ensure hobbies is always treated as an array
+  const processedHobbies = Array.isArray(hobbies) ? hobbies : [];
+
   return (
     <View style={styles.profileBox}>
       <TouchableWithoutFeedback onPress={onPressProfile}>
         <Text style={styles.displayNameText}>{displayName}</Text>
       </TouchableWithoutFeedback>
 
-      {hobbies && hobbies.length > 0 && (
+      {processedHobbies.length > 0 && (
         <View style={styles.hobbiesContainer}>
-          {hobbies.slice(0, MAX_DISPLAYED_HOBBIES).map((hobby, index) => (
-            <HobbyButton
-              key={index}
-              HobbyName={hobby}
-              state={hobbyState(hobby)}
-            />
-          ))}
-          {hobbies.length > MAX_DISPLAYED_HOBBIES && (
+          {processedHobbies
+            .slice(0, MAX_DISPLAYED_HOBBIES)
+            .map((hobby, index) => (
+              <HobbyButton
+                key={index}
+                HobbyName={hobby}
+                state={hobbyState(hobby)}
+              />
+            ))}
+          {processedHobbies.length > MAX_DISPLAYED_HOBBIES && (
             <View style={styles.moreHobbiesTextContainer}>
               <Text style={styles.moreHobbiesText}>
-                +{hobbies.length - MAX_DISPLAYED_HOBBIES} more
+                +{processedHobbies.length - MAX_DISPLAYED_HOBBIES} more
               </Text>
             </View>
           )}
         </View>
       )}
 
-      {(!hobbies || hobbies.length === 0) && (
+      {processedHobbies.length === 0 && (
         <View style={styles.noHobbiesContainer}>
           <Text style={styles.noHobbiesText}>
             Looks Like This User Doesn't Have Any Hobbies

@@ -1,3 +1,4 @@
+//store.js
 import { createStore } from "redux";
 import myReducer from "./reducers";
 
