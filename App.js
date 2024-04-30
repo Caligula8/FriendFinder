@@ -10,9 +10,6 @@ import {
   Register2,
   Register3,
   WelcomeScreen,
-  TestScreen,
-  TestScreen2,
-  TestScreen3,
   SplashScreen,
   ChatsListScreen,
   ChatDialogueScreen,
@@ -75,9 +72,6 @@ const App = () => {
           <Stack.Screen name="MyPosts" component={MyPreviousPosts} />
           <Stack.Screen name="BlockedList" component={BlockedList} />
 
-          <Stack.Screen name="Test" component={TestScreen} />
-          <Stack.Screen name="Test2" component={TestScreen2} />
-          <Stack.Screen name="Test3" component={TestScreen3} />
           <Stack.Screen
             name="SelectedPublicProfile"
             component={SelectedPublicProfile}

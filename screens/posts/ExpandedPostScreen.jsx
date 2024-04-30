@@ -76,7 +76,6 @@ const ExpandedPostScreen = () => {
   };
 
   const handleDeletePost = () => {
-    // Add logic to handle deleting post
     console.log("Deleting post...");
   };
 
@@ -166,7 +165,7 @@ const ExpandedPostScreen = () => {
                 {post.images.map((imageUrl, index) => (
                   <Image
                     key={index}
-                    source={{ uri: imageUrl }} // Ensure this is set correctly
+                    source={{ uri: imageUrl }}
                     style={ggg.image}
                     resizeMode="cover"
                   />
@@ -200,7 +199,6 @@ const ExpandedPostScreen = () => {
         isVisible={isModalVisible}
         onClose={toggleModal}
         onSend={(messageData) => {
-          // Add logic for sending message
           console.log("Sending message to:", messageData.recipient);
           console.log("Message content:", messageData.message);
         }}

@@ -13,6 +13,7 @@ import { globalStyles } from "../../styles/globalStyles";
 
 const BlockedList = () => {
   const navigation = useNavigation();
+
   return (
     <View style={globalStyles.pageContainer}>
       {/* Header */}
@@ -28,8 +29,15 @@ const BlockedList = () => {
           <Text style={globalStyles.title}>Blocked Users</Text>
         </View>
       </View>
+
       {/* Content */}
-      <ScrollView style={ggg.contentContainer}></ScrollView>
+      <ScrollView
+        style={ggg.contentContainer}
+        contentContainerStyle={ggg.centerContent}
+      >
+        {/* This Text only shows if there are no blocked users */}
+        <Text style={ggg.noUsersText}>No Blocked Users Yet</Text>
+      </ScrollView>
 
       {/* Footer & Navbar */}
       <View style={globalStyles.footer}>
@@ -44,11 +52,15 @@ const ggg = StyleSheet.create({
     width: "100%",
     padding: 12,
   },
-  pageBodyContainer: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "flex-start",
+  centerContent: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
+  },
+  noUsersText: {
+    textAlign: "center",
+    fontSize: 18,
+    color: "gray",
   },
 });
 

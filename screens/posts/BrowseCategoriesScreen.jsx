@@ -48,6 +48,7 @@ const BrowseCategoriesScreen = () => {
               <HobbyCategory
                 category={category}
                 onPress={() => handleCategoryPress(category)}
+                index={index}
               />
             </View>
           ))}
@@ -68,6 +69,7 @@ const ggg = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-around",
+    marginHorizontal: 10,
   },
   itemContainer: {
     alignItems: "center",

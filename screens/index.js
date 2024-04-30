@@ -23,7 +23,3 @@ export { default as ReSelectHobbiesScreen } from "./ReSelectHobbiesScreen";
 export { default as AcctManagement } from "./settings/AcctManagement";
 export { default as MyPreviousPosts } from "./settings/MyPreviousPosts";
 export { default as BlockedList } from "./settings/BlockedList";
-//Test Screens
-export { default as TestScreen } from "./Test-Screens/TestScreen";
-export { default as TestScreen2 } from "./Test-Screens/TestScreen2";
-export { default as TestScreen3 } from "./Test-Screens/TestScreen3";

@@ -152,9 +152,8 @@ const MessagePromptModal = ({
       onClose();
 
       // Trigger handleNextUser in HomeScreen
-      onMessageSent(); // Ensure this function is passed down as a prop
+      onMessageSent?.();
     } catch (error) {
-      // Handle any errors that occur during Firestore operations
       console.error("Error sending message: ", error);
       setErrorMessage("Failed to send message. Please try again later.");
       setIsSending(false);

@@ -47,26 +47,31 @@ const HomeScreen = () => {
   const { fetchAndFilterUsers } = useNonRejectedUsers(loggedInUser);
   const screenWidth = Dimensions.get("window").width;
 
+  //useEffect hook to handle user selection and state management
   useEffect(() => {
     if (!randomSearchEnabled && nonRejectedUsers.length > 0) {
+      //listing through users that share a hobby with you
       setSelectedUser(nonRejectedUsers[0]);
     } else if (!randomSearchEnabled && nonRejectedUsers.length === 0) {
+      //no more matches, prompt user state
       setNonRejectedUsersAllViewed(true);
       setSelectedUser(null);
     } else if (randomSearchEnabled) {
+      //random new users state
       fetchRandomUser();
     }
   }, [nonRejectedUsers, randomSearchEnabled]);
 
+  // Updates user as viewed in the db and redux store
   const markUserAsViewedAndUpdate = async (viewedUserId) => {
-    if (isUpdating) return;
+    if (isUpdating) return; //prevent updates during another update
     setIsUpdating(true);
     try {
-      const userRef = doc(firestoreDB, "users", loggedInUser._id);
+      const userRef = doc(firestoreDB, "users", loggedInUser?._id);
       await updateDoc(userRef, {
         [`viewedUserProfiles.${viewedUserId}`]: true,
       });
-      dispatch(markUserAsViewed(loggedInUser._id, viewedUserId));
+      dispatch(markUserAsViewed(loggedInUser?._id, viewedUserId));
     } catch (error) {
       console.error("Error marking user as viewed:", error);
     } finally {
@@ -74,10 +79,11 @@ const HomeScreen = () => {
     }
   };
 
+  // Handles action to select next user.
   const handleNextUser = () => {
     if (selectedUser) {
-      markUserAsViewedAndUpdate(selectedUser._id);
-      dispatch(removeUserFromNonRejected(selectedUser._id));
+      markUserAsViewedAndUpdate(selectedUser?._id);
+      dispatch(removeUserFromNonRejected(selectedUser?._id));
       if (nonRejectedUsers.length === 1) {
         setNonRejectedUsersAllViewed(true);
         setSelectedUser(null);
@@ -86,39 +92,42 @@ const HomeScreen = () => {
   };
 
   const fetchRandomUser = async () => {
-    let lastVisible = null;
+    let lastVisible = null; // Tracks the last document snapshot from the previous query for pagination
     try {
       const pageSize = 20; // Page size for each query batch
       const usersRef = collection(firestoreDB, "users");
 
+      // Repeat until a suitable user is found or no users are left to query
       while (true) {
-        const userDocRef = doc(firestoreDB, "users", loggedInUser._id);
+        // Construct the query for fetching users, paginating if necessary.
+        const userDocRef = doc(firestoreDB, "users", loggedInUser?._id);
         const userDoc = await getDoc(userDocRef);
         const viewedProfiles = userDoc.data()?.viewedUserProfiles || {};
 
-        const userQuery = lastVisible
+        const userQuery = lastVisible // Execute the query
           ? query(usersRef, startAfter(lastVisible), limit(pageSize))
           : query(usersRef, limit(pageSize));
 
         const snapshot = await getDocs(userQuery);
         if (snapshot.empty) {
+          // No more users to fetch
           setNoMoreNewUsersExist(true);
           setSelectedUser(null);
           return;
         }
-
+        // Filter out users who have already been viewed and the logged-in user
         const candidates = snapshot.docs
           .filter(
             (doc) =>
-              doc.id !== loggedInUser._id &&
-              !viewedProfiles.hasOwnProperty(doc.id)
+              doc.id !== loggedInUser?._id &&
+              !viewedProfiles.hasOwnProperty(doc.id) //hasOwnProperty = check existence
           )
-          .map((doc) => ({ id: doc.id, ...doc.data() }));
+          .map((doc) => ({ id: doc.id, ...doc.data() })); // Map documents to user objects
 
         if (candidates.length > 0) {
           const randomIndex = Math.floor(Math.random() * candidates.length);
           const selected = candidates[randomIndex];
-          setSelectedUser(selected);
+          setSelectedUser(selected); // Select a random user from the filtered list
 
           // Using a transaction to update viewedUserProfiles
           await runTransaction(firestoreDB, async (transaction) => {
@@ -132,13 +141,13 @@ const HomeScreen = () => {
 
           return;
         }
-
+        // If the fetched batch is smaller than the page size, indicates there are no more queries left to make
         if (snapshot.docs.length < pageSize) {
           setNoMoreNewUsersExist(true);
           setSelectedUser(null);
           return;
         }
-
+        // Update lastVisible for the next query batch using the last document from the current batch.
         lastVisible = snapshot.docs[snapshot.docs.length - 1];
       }
     } catch (error) {
@@ -153,7 +162,7 @@ const HomeScreen = () => {
     setNoMoreNewUsersExist(false);
     setIsLoading(true);
     try {
-      await updateDoc(doc(firestoreDB, "users", loggedInUser._id), {
+      await updateDoc(doc(firestoreDB, "users", loggedInUser?._id), {
         viewedUserProfiles: {},
       });
       fetchAndFilterUsers(loggedInUser);
@@ -175,13 +184,13 @@ const HomeScreen = () => {
         {selectedUser ? (
           <SuggestedProfile
             displayName={selectedUser.displayName}
-            hobbies={selectedUser.hobbies || "None"}
-            userHobbies={loggedInUser.hobbies || "None"}
+            hobbies={selectedUser?.hobbies || "None"}
+            userHobbies={loggedInUser?.hobbies || "None"}
             onPressMessage={() => setModalVisible(true)}
             onPressNextUser={handleNextUser}
             onPressProfile={() =>
               navigation.navigate("SelectedPublicProfile", {
-                userID: selectedUser._id,
+                userID: selectedUser?._id,
               })
             }
           />
@@ -235,7 +244,7 @@ const HomeScreen = () => {
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
         recipientUsername={selectedUser?.displayName || "Guest"}
-        senderID={loggedInUser._id || "Guest"}
+        senderID={loggedInUser?._id || "Guest"}
         recipientID={selectedUser?.uid || "Guest"}
         senderName={loggedInUser?.displayName || "Guest"}
         onMessageSent={handleNextUser}
